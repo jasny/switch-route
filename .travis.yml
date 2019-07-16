@@ -1,0 +1,34 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - nightly
+
+matrix:
+  allow_failures:
+    - php: nightly
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+branches:
+  only:
+    - master
+
+before_install:
+  - composer self-update
+
+install:
+  - composer install --prefer-source $COMPOSER_FLAGS
+  - wget https://scrutinizer-ci.com/ocular.phar -O "$HOME/ocular.phar"
+  
+script:
+  - vendor/bin/phpunit --coverage-clover cache/logs/clover.xml
+
+after_success:
+  - php "$HOME/ocular.phar" code-coverage:upload --format=php-clover cache/logs/clover.xml
+

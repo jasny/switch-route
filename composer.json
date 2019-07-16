@@ -1,0 +1,50 @@
+{
+    "name": "jasny/switch-route",
+    "description": "",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Arnold Daniels",
+            "email": "arnold@jasny.net",
+            "homepage": "http://www.jasny.net"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/jasny/switch-route/issues",
+        "source": "https://github.com/jasny/switch-route"
+    },
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "require-dev": {
+        "jasny/php-code-quality": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jasny\\SwitchRoute\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jasny\\SwitchRoute\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "phpunit",
+            "phpstan analyse",
+            "phpcs -p src"
+        ],
+        "post-create-project-cmd": [
+            "bash init.sh && rm init.sh"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
