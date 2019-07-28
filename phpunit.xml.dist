@@ -8,8 +8,11 @@
     convertWarningsToExceptions="true"
 >
     <testsuites>
-        <testsuite name="tests">
-            <directory>tests/</directory>
+        <testsuite name="Unit tests">
+            <directory>tests/unit</directory>
+        </testsuite>
+        <testsuite name="Functional tests">
+            <directory>tests/functional</directory>
         </testsuite>
     </testsuites>
     <filter>

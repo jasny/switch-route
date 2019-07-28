@@ -15,10 +15,12 @@
         "source": "https://github.com/jasny/switch-route"
     },
     "require": {
-        "php": ">=7.1.0"
+        "php": ">=7.2.0",
+        "ext-zend-opcache": "*",
+        "jasny/reflection-factory": "^1.1.1"
     },
     "require-dev": {
-        "jasny/php-code-quality": "^2.3"
+        "jasny/php-code-quality": "^2.5"
     },
     "autoload": {
         "psr-4": {
@@ -27,7 +29,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Jasny\\SwitchRoute\\Tests\\": "tests/"
+            "Jasny\\SwitchRoute\\Tests\\": "tests/unit/",
+            "Jasny\\SwitchRoute\\FunctionalTests\\": "tests/functional/"
         }
     },
     "scripts": {
