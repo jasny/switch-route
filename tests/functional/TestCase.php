@@ -4,29 +4,10 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\FunctionalTests;
 
-use Jasny\SwitchRoute\Generator;
-use Jasny\SwitchRoute\Invoker;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase as Base;
 
-/**
- * @coversNothing
- */
-class GenerateScriptTest extends TestCase
+abstract class TestCase extends Base
 {
-    use RoutesTrait;
-
-    /**
-     * @var vfsStreamDirectory
-     */
-    protected static $root;
-
-    /**
-     * @var string
-     */
-    protected static $file;
-
     protected $users = [
         1 => ['id' => 1, 'name' => 'joe', 'email' => 'joe@example.com'],
         2 => ['id' => 2, 'name' => 'jane', 'email' => 'jane@example.com'],
@@ -44,23 +25,24 @@ class GenerateScriptTest extends TestCase
         ]
     ];
 
-    public static function setUpBeforeClass(): void
+    public static function getRoutes(): array
     {
-        self::$root = vfsStream::setup('tmp');
-        self::$file = vfsStream::url('tmp/generated/routes.php');
+        return [
+            'GET      /'                  => ['controller' => 'info'],
 
-        $invoker = new Invoker(function ($class, $action) {
-            [$class, $method] = Invoker::createInvokable($class, $action);
-            return [__NAMESPACE__ . '\\Support\\' . $class, $method];
-        });
+            'GET      /users'             => ['controller' => 'user', 'action' => 'list'],
+            'POST     /users'             => ['controller' => 'user', 'action' => 'add'],
+            'GET      /users/{id}'        => ['controller' => 'user', 'action' => 'get'],
+            'POST|PUT /users/{id}'        => ['controller' => 'user', 'action' => 'update'],
+            'DELETE   /users/{id}'        => ['controller' => 'user', 'action' => 'delete'],
 
-        $generator = new Generator(new Generator\GenerateScript($invoker, '$method', '$path'));
-        $generator->generate('', self::$file, [__CLASS__, 'getRoutes']);
-    }
+            'GET      /users/{id}/photos' => ['action' => 'list-photos'],
+            'POST     /users/{id}/photos' => ['action' => 'add-photos'],
 
-    public static function tearDownAfterClass(): void
-    {
-        self::$root = null;
+            'POST     /export'            => ['include' => __DIR__ . '/scripts/export.php'],
+
+            'default'                   => ['action' => 'not-found'],
+        ];
     }
 
     public function provider()
@@ -91,15 +73,5 @@ class GenerateScriptTest extends TestCase
             ['GET', '/users/2/', $this->users[2]],
             ['GET', '/users/2/photos/', $this->photos[2]],
         ];
-    }
-
-    /**
-     * @dataProvider provider
-     */
-    public function test(string $method, string $path, $expected)
-    {
-        $result = require self::$file;
-
-        $this->assertEquals($expected, $result);
     }
 }

@@ -51,11 +51,16 @@ class Invoker
      * @param string|null $controller
      * @param string|null $action
      * @param callable    $genArg     Callback to generate code for arguments.
+     * @param string      $new        PHP code to instantiate class.
      * @return string
      * @throws ReflectionException
      */
-    public function generateInvocation(?string $controller, ?string $action, callable $genArg): string
-    {
+    public function generateInvocation(
+        ?string $controller,
+        ?string $action,
+        callable $genArg,
+        string $new = '(new %s)'
+    ): string {
         $invokable = ($this->createInvokable)($controller, $action);
 
         if (is_string($invokable) && strpos($invokable, '::') !== false) {
@@ -66,7 +71,7 @@ class Invoker
 
         $reflection = $this->getReflection($invokable);
 
-        return (is_string($invokable) ? $invokable : $this->generateInvocationMethod($invokable, $reflection))
+        return (is_string($invokable) ? $invokable : $this->generateInvocationMethod($invokable, $reflection, $new))
             . '(' . $this->generateInvocationArgs($reflection, $genArg) . ')';
     }
 
@@ -74,14 +79,18 @@ class Invoker
      * Generate the code for a method call.
      *
      * @param callable&array(string, string) $invokable
-     * @param ReflectionMethod $reflection
+     * @param ReflectionMethod               $reflection
+     * @param string                         $new         PHP code to instantiate class.
      * @return string
      */
-    protected function generateInvocationMethod(array $invokable, ReflectionMethod $reflection): string
-    {
+    protected function generateInvocationMethod(
+        array $invokable,
+        ReflectionMethod $reflection,
+        string $new = '(new \\%s)'
+    ): string {
         return $invokable[1] === '__invoke'
-            ? "(new {$invokable[0]})"
-            : ($reflection->isStatic() ? "{$invokable[0]}::" : "(new {$invokable[0]})->") . $invokable[1];
+            ? sprintf($new, $invokable[0])
+            : ($reflection->isStatic() ? "{$invokable[0]}::" : sprintf($new, $invokable[0]) . "->") . $invokable[1];
     }
 
     /**
@@ -97,7 +106,8 @@ class Invoker
         $args = [];
 
         foreach ($reflection->getParameters() as $param) {
-            $args[] = $genArg($param->getName(), $param->isOptional() ? $param->getDefaultValue() : null);
+            $default = $param->isOptional() ? $param->getDefaultValue() : null;
+            $args[] = $genArg($param->getName(), $param->getType(), $default);
         }
 
         return join(', ', $args);

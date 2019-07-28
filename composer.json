@@ -17,10 +17,16 @@
     "require": {
         "php": ">=7.2.0",
         "ext-zend-opcache": "*",
-        "jasny/reflection-factory": "^1.1.1"
+        "jasny/reflection-factory": "^1.1.1",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.0",
+        "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "jasny/php-code-quality": "^2.5"
+        "ext-http_message": "*",
+        "ext-json": "*",
+        "jasny/php-code-quality": "^2.5",
+        "relay/relay": "^2.0"
     },
     "autoload": {
         "psr-4": {

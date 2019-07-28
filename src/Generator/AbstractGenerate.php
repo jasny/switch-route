@@ -75,6 +75,21 @@ abstract class AbstractGenerate
     }
 
     /**
+     * Generate namespace code and extract class name from fqcn.
+     *
+     * @param string $class
+     * @return array
+     */
+    protected function generateNs(string $class): array
+    {
+        $parts = explode('\\', $class);
+        $className = array_pop($parts);
+        $namespace = $parts !== [] ? "\n" . 'namespace ' . join('\\', $parts) . ";\n" : '';
+
+        return [$namespace, $className];
+    }
+
+    /**
      * Indent code with spaces.
      * {@internal PSR-2 requires the use of 4 spaces for indentation. Other variants like tabs will not be supported.}}
      *

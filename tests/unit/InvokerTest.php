@@ -80,14 +80,14 @@ class InvokerTest extends TestCase
             $this->createConfiguredMock(ReflectionParameter::class, ['getName' => 'id', 'isOptional' => false]),
             $this->createConfiguredMock(
                 ReflectionParameter::class,
-                ['getName' => 'good', 'isOptional' => true, 'getDefaultValue' => 'ok']
+                ['getName' => 'good', 'getType' => 'string', 'isOptional' => true, 'getDefaultValue' => 'ok']
             ),
         ];
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, $parameters);
 
         $genArg = $this->createCallbackMock($this->exactly(2), function (InvocationMocker $invoke) {
             $invoke
-                ->withConsecutive(['id', null], ['good', 'ok'])
+                ->withConsecutive(['id', null], ['good', 'string', 'ok'])
                 ->willReturnOnConsecutiveCalls("\$var['id'] ?? NULL", "\$var['good'] ?? 'ok'");
         });
 
@@ -104,7 +104,7 @@ class InvokerTest extends TestCase
         ];
         $reflectionFactory = $this->createReflectionFactoryMock(['FooController', 'barAction'], true, $parameters);
 
-        $genArg = $this->createCallbackMock($this->once(), ['id', null], "\$var['id'] ?? NULL");
+        $genArg = $this->createCallbackMock($this->once(), ['id', '', null], "\$var['id'] ?? NULL");
 
         $invoker = new Invoker(null, $reflectionFactory);
         $code = $invoker->generateInvocation('foo', 'bar', $genArg);
@@ -152,7 +152,7 @@ class InvokerTest extends TestCase
         $reflectionFactory->expects($this->once())->method('reflectFunction')
             ->with()->willReturn($reflection);
 
-        $genArg = $this->createCallbackMock($this->once(), ['id', null], "\$var['id'] ?? NULL");
+        $genArg = $this->createCallbackMock($this->once(), ['id', '', null], "\$var['id'] ?? NULL");
 
         $createInvokable = function (?string $controller, ?string $action) {
             return $controller . '_' . str_replace('-', '', $action);
@@ -171,7 +171,7 @@ class InvokerTest extends TestCase
         ];
         $reflectionFactory = $this->createReflectionFactoryMock(['App\\Foo', 'toDo'], false, $parameters);
 
-        $genArg = $this->createCallbackMock($this->once(), ['id', null], "\$var['id'] ?? NULL");
+        $genArg = $this->createCallbackMock($this->once(), ['id', '', null], "\$var['id'] ?? NULL");
 
         $createInvokable = $this->createCallbackMock($this->once(), ['foo', 'to-do'], 'App\\Foo::toDo');
 
