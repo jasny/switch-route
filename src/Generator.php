@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute;
 
-use Jasny\SwitchRoute\Generator\GenerateScript;
+use Jasny\SwitchRoute\Generator\GenerateFunction;
 use LogicException;
 use RuntimeException;
 
@@ -38,7 +38,7 @@ class Generator
      * @param bool     $overwrite  Overwrite existing file.
      * @throws RuntimeException if file could not be created.
      */
-    public function generate(string $class, string $file, callable $getRoutes, bool $overwrite = true): void
+    public function generate(string $class, string $file, callable $getRoutes, bool $overwrite): void
     {
         if (!$overwrite && $this->scriptExists($file)) {
             return;
@@ -157,7 +157,7 @@ class Generator
         $vars = [];
 
         foreach ($segments as $index => &$segment) {
-            if (preg_match('/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment, $match)) {
+            if (preg_match( '/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment, $match)) {
                 $vars[$match['var']] = $index;
                 $segment = '*';
             }

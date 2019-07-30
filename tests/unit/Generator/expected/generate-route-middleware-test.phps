@@ -57,10 +57,6 @@ class RouteMiddleware implements MiddlewareInterface
                                             ->withAttribute('route:action', 'get')
                                             ->withAttribute('route:{id}', $segments[1]);
                                     case 'POST':
-                                        return $request
-                                            ->withAttribute('route:controller', 'user')
-                                            ->withAttribute('route:action', 'update')
-                                            ->withAttribute('route:{id}', $segments[1]);
                                     case 'PUT':
                                         return $request
                                             ->withAttribute('route:controller', 'user')
@@ -117,6 +113,6 @@ class RouteMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $handler->handle($request);
+        return $handler->handle($this->applyRouting($request));
     }
 }

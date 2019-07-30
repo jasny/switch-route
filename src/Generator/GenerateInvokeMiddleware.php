@@ -107,8 +107,9 @@ class {$class} implements MiddlewareInterface
      */
     public function process(ServerRequestInterface \$request, RequestHandlerInterface \$handler): ResponseInterface
     {
-        if (\$request->getAttribute('route:include', null) !== null) {
-            require \$request->getAttribute('route:include');
+        \$include = \$request->getAttribute('route:include', null);
+        if (\$include !== null) {
+            return require \$include;
         }
 
         \$controller = \$request->getAttribute('route:controller', '');
@@ -173,6 +174,7 @@ CODE;
             }
 
             if (!isset($route['controller']) && !isset($route['action'])) {
+                $key = preg_replace('/{.*?}/', '*', $key);
                 throw new InvalidRouteException("Route for '$key' should specify 'include', 'controller', " .
                     "or 'action'");
             }
@@ -214,6 +216,7 @@ CODE;
                 '(isset($this->instantiate) ? ($this->instantiate)(\'%1$s\') : new \\%1$s)'
             );
         } catch (ReflectionException $exception) {
+            $key = preg_replace('/{.*?}/', '*', $key);
             throw new InvalidRouteException("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
         }
 

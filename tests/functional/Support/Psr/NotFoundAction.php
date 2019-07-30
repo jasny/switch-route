@@ -25,17 +25,19 @@ class NotFoundAction
 
     public function __invoke(ServerRequestInterface $request)
     {
-        $allowedMethods = $request->getAttributes('route:allowed_attributes', []);
+        $allowedMethods = $request->getAttribute('route:allowed_methods', []);
 
         if ($allowedMethods === []) {
-            $response = $this->responseFactory->createResponse(404)
+            $response = $this->responseFactory->createResponse(404, 'Not Found')
                 ->withHeader('Content-Type', 'text/plain');
         } else {
-            $response = $this->responseFactory->createResponse(405)
+            $response = $this->responseFactory->createResponse(405, 'Method Not Allowed')
                 ->withHeader('Content-Type', 'text/plain')
                 ->withHeader('Allow', join(', ', $allowedMethods));
         }
 
         $response->getBody()->write("Nothing here");
+
+        return $response;
     }
 }

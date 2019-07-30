@@ -34,7 +34,7 @@ class UserController
     protected function textResponse(string $text)
     {
         $response = $this->responseFactory->createResponse()
-            ->withHeader('Content-Type', 'application/json');
+            ->withHeader('Content-Type', 'text/plain');
         $response->getBody()->write($text);
 
         return $response;

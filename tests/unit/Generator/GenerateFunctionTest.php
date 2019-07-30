@@ -57,7 +57,7 @@ class GenerateFunctionTest extends TestCase
 
         $code = $generate('route_generate_function_test', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-function-test.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-function-test.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -75,7 +75,7 @@ class GenerateFunctionTest extends TestCase
 
         $code = $generate('route_generate_function_test_default', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-function-test-default.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-function-test-default.phps');
         $this->assertEquals($expected, $code);
     }
 

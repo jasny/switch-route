@@ -11,6 +11,7 @@ use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 
 /**
@@ -49,32 +50,16 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
             ->withConsecutive(...$routeArgs)
             ->willReturnCallback(function ($controller, $action, callable $genArg) {
-                return sprintf("call('%s', '%s', %s)", $controller, $action, $genArg('id', '', null));
+                $request = $genArg('request', ServerRequestInterface::class, null);
+                $id = $genArg('id', '', null);
+                return sprintf("call('%s', '%s', %s, %s)", $controller, $action, $request, $id);
             });
 
         $generate = new GenerateInvokeMiddleware($invoker);
 
         $code = $generate('InvokeMiddleware', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-invoke-middleware-test.phps');
-        $this->assertEquals($expected, $code);
-    }
-
-    /*public function testDefault()
-    {
-        $routes = ['GET /' => ['controller' => 'info']];
-        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
-
-        $invoker = $this->createMock(Invoker::class);
-        $invoker->expects($this->once())->method('generateInvocation')
-            ->with('info', null, $this->isInstanceOf(Closure::class))
-            ->willReturn('info()');
-
-        $generate = new GenerateInvokeMiddleware($invoker);
-
-        $code = $generate('', $routes, $structure);
-
-        $expected = file_get_contents(__DIR__ . '/assets/generate-script-test-default.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-invoke-middleware-test.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -109,5 +94,5 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $generate = new GenerateInvokeMiddleware($invoker);
 
         $generate('', $routes, $structure);
-    }*/
+    }
 }

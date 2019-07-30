@@ -103,4 +103,32 @@ final class Endpoint
 
         return $this->vars[$method];
     }
+
+
+    /**
+     * Get unique routes with methods and vars.
+     *
+     * @param array $routes
+     * @return \Generator
+     */
+    public function getUniqueRoutes(): \Generator
+    {
+        $queue = array_keys($this->routes);
+
+        while ($queue !== []) {
+            $method = reset($queue);
+
+            $route = $this->routes[$method];
+            $vars = $this->vars[$method];
+
+            $methods = array_values(array_intersect(
+                array_keys($this->routes, $route, true),
+                array_keys($this->vars, $vars, true)
+            ));
+
+            yield [$methods, $route, $vars];
+
+            $queue = array_diff($queue, $methods);
+        }
+    }
 }

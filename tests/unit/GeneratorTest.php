@@ -43,7 +43,7 @@ class GeneratorTest extends TestCase
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('FortyTwo', $path, $getRoutes);
+        $generator->generate('FortyTwo', $path, $getRoutes, false);
 
         $this->assertFileExists($path);
         $this->assertEquals($script, file_get_contents($path));
@@ -62,7 +62,31 @@ class GeneratorTest extends TestCase
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('FortyTwo', $path, $getRoutes);
+        $generator->generate('FortyTwo', $path, $getRoutes, false);
+    }
+
+    public function testGenerateOverwrite()
+    {
+        vfsStream::create([
+            'generated' => [
+                'routes.php' => '<?php return -1;'
+            ]
+        ]);
+
+        $script = '<?php return 42;';
+
+        $routes = $this->getRoutes();
+        $getRoutes = $this->createCallbackMock($this->once(), [], $routes);
+
+        $expectStructure = $this->getStructure();
+        $generate = $this->createCallbackMock($this->once(), ['FortyTwo', $routes, $expectStructure], $script);
+        $path = vfsStream::url('tmp/generated/routes.php');
+
+        $generator = new Generator($generate);
+        $generator->generate('FortyTwo', $path, $getRoutes, true);
+
+        $this->assertFileExists($path);
+        $this->assertEquals($script, file_get_contents($path));
     }
 
     public function testGenerateWithInvalidRoute()
@@ -79,7 +103,7 @@ class GeneratorTest extends TestCase
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('', $path, $getRoutes);
+        $generator->generate('foo', $path, $getRoutes, true);
     }
 
     public function testGenerateWithUnexpectedReturnValue()
@@ -91,11 +115,11 @@ class GeneratorTest extends TestCase
         $getRoutes = $this->createCallbackMock($this->once(), [], $routes);
 
         $expectStructure = $this->getStructure();
-        $generate = $this->createCallbackMock($this->once(), ['', $routes, $expectStructure], (object)[]);
+        $generate = $this->createCallbackMock($this->once(), ['foo', $routes, $expectStructure], (object)[]);
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('', $path, $getRoutes);
+        $generator->generate('foo', $path, $getRoutes, true);
     }
 
     public function testGenerateCreateDirFailure()
@@ -113,11 +137,11 @@ class GeneratorTest extends TestCase
         $getRoutes = $this->createCallbackMock($this->once(), [], $routes);
 
         $expectStructure = $this->getStructure();
-        $generate = $this->createCallbackMock($this->once(), ['', $routes, $expectStructure], $script);
+        $generate = $this->createCallbackMock($this->once(), ['foo', $routes, $expectStructure], $script);
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('', $path, $getRoutes);
+        $generator->generate('foo', $path, $getRoutes, true);
     }
 
     public function testGenerateCreateFileFailure()
@@ -133,10 +157,10 @@ class GeneratorTest extends TestCase
         $getRoutes = $this->createCallbackMock($this->once(), [], $routes);
 
         $expectStructure = $this->getStructure();
-        $generate = $this->createCallbackMock($this->once(), ['', $routes, $expectStructure], $script);
+        $generate = $this->createCallbackMock($this->once(), ['foo', $routes, $expectStructure], $script);
         $path = vfsStream::url('tmp/generated/routes.php');
 
         $generator = new Generator($generate);
-        $generator->generate('', $path, $getRoutes);
+        $generator->generate('foo', $path, $getRoutes, true);
     }
 }

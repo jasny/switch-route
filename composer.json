@@ -26,6 +26,7 @@
         "ext-http_message": "*",
         "ext-json": "*",
         "jasny/php-code-quality": "^2.5",
+        "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0"
     },
     "autoload": {

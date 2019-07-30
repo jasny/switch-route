@@ -19,9 +19,19 @@ class InvokeMiddleware implements MiddlewareInterface
      */
     protected $responseFactory;
 
-    public function __construct(ResponseFactoryInterface $responseFactory)
+    /**
+     * @var callable
+     */
+    protected $instantiate;
+
+    /**
+     * @param ResponseFactoryInterface $responseFactory  Used for default not-found response.
+     * @param callable                 $instantiate      Instantiate controller / action classes.
+     */
+    public function __construct(ResponseFactoryInterface $responseFactory, ?callable $instantiate = null)
     {
         $this->responseFactory = $responseFactory;
+        $this->instantiate = $instantiate;
     }
 
     /**
@@ -50,8 +60,9 @@ class InvokeMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($request->getAttribute('route:include', null) !== null) {
-            require $request->getAttribute('route:include');
+        $include = $request->getAttribute('route:include', null);
+        if ($include !== null) {
+            return require $include;
         }
 
         $controller = $request->getAttribute('route:controller', '');
@@ -61,31 +72,31 @@ class InvokeMiddleware implements MiddlewareInterface
             case 'info':
                 switch ($action) {
                     case '':
-                        return call('info', '', $request->getAttribute('route:{id}', NULL));
+                        return call('info', '', $request, $request->getAttribute('route:{id}', NULL));
                 }
                 break;
             case 'user':
                 switch ($action) {
                     case 'list':
-                        return call('user', 'list', $request->getAttribute('route:{id}', NULL));
+                        return call('user', 'list', $request, $request->getAttribute('route:{id}', NULL));
                     case 'add':
-                        return call('user', 'add', $request->getAttribute('route:{id}', NULL));
+                        return call('user', 'add', $request, $request->getAttribute('route:{id}', NULL));
                     case 'get':
-                        return call('user', 'get', $request->getAttribute('route:{id}', NULL));
+                        return call('user', 'get', $request, $request->getAttribute('route:{id}', NULL));
                     case 'update':
-                        return call('user', 'update', $request->getAttribute('route:{id}', NULL));
+                        return call('user', 'update', $request, $request->getAttribute('route:{id}', NULL));
                     case 'delete':
-                        return call('user', 'delete', $request->getAttribute('route:{id}', NULL));
+                        return call('user', 'delete', $request, $request->getAttribute('route:{id}', NULL));
                 }
                 break;
             case '':
                 switch ($action) {
                     case 'list-photos':
-                        return call('', 'list-photos', $request->getAttribute('route:{id}', NULL));
+                        return call('', 'list-photos', $request, $request->getAttribute('route:{id}', NULL));
                     case 'add-photos':
-                        return call('', 'add-photos', $request->getAttribute('route:{id}', NULL));
+                        return call('', 'add-photos', $request, $request->getAttribute('route:{id}', NULL));
                     case 'not-found':
-                        return call('', 'not-found', $request->getAttribute('route:{id}', NULL));
+                        return call('', 'not-found', $request, $request->getAttribute('route:{id}', NULL));
                     case '':
                         return $this->notFound($request);
                 }

@@ -41,7 +41,7 @@ abstract class TestCase extends Base
 
             'POST     /export'            => ['include' => __DIR__ . '/scripts/export.php'],
 
-            'default'                   => ['action' => 'not-found'],
+            'default'                     => ['action' => 'not-found'],
         ];
     }
 

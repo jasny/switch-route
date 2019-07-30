@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Generated;
+
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -41,6 +43,6 @@ class RouteMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $handler->handle($request);
+        return $handler->handle($this->applyRouting($request));
     }
 }

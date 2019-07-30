@@ -26,7 +26,7 @@ class GenerateRouteMiddlewareTest extends TestCase
 
         $code = $generate('RouteMiddleware', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-route-middleware-test.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-route-middleware-test.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -39,7 +39,7 @@ class GenerateRouteMiddlewareTest extends TestCase
 
         $code = $generate('RouteMiddleware', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-route-middleware-test-default.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-route-middleware-test-default.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -52,7 +52,7 @@ class GenerateRouteMiddlewareTest extends TestCase
 
         $code = $generate('App\\Generated\\RouteMiddleware', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-route-middleware-test-ns.phps');
+        $expected = file_get_contents(__DIR__ . '/expected/generate-route-middleware-test-ns.phps');
         $this->assertEquals($expected, $code);
     }
 }

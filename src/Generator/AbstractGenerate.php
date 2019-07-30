@@ -59,45 +59,21 @@ abstract class AbstractGenerate
      */
     protected function generateEndpoint(Endpoint $endpoint): string
     {
-        $routes = $this->uniqueRoutes($endpoint->getRoutes());
-
         $code[] = "switch (\$method) {";
 
-        foreach ($routes as $methods => $route) {
+        foreach ($endpoint->getUniqueRoutes() as [$methods, $route, $vars]) {
             foreach ($methods as $method) {
                 $code[] = sprintf("    case '%s':", $method);
             }
 
             $key = join('|', $methods) . ' ' . $endpoint->getPath();
-            $routeCode = $this->generateRoute($key, $route, $endpoint->getVars($method));
+            $routeCode = $this->generateRoute($key, $route, $endpoint->getVars($methods[0]));
             $code[] = AbstractGenerate::indent($routeCode, 8);
         }
 
         $code[] = "}";
 
         return join("\n", $code);
-    }
-
-    /**
-     * Get unique routes with methods.
-     * Yields pairs of methods (array) and route.
-     *
-     * @param array $routes
-     * @return \Generator
-     */
-    protected function uniqueRoutes(array $routes): \Generator
-    {
-        $done = [];
-
-        foreach ($routes as $route) {
-            if (in_array($route, $done, true)) {
-                continue;
-            }
-            $done[] = $route;
-
-            $methods = array_keys($routes, $route, true);
-            yield $methods => $route;
-        }
     }
 
     /**

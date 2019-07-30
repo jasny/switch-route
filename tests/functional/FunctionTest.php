@@ -30,7 +30,7 @@ class FunctionTest extends TestCase
         });
 
         $generator = new Generator(new Generator\GenerateFunction($invoker));
-        $generator->generate('route', $file, [__CLASS__, 'getRoutes']);
+        $generator->generate('route', $file, [__CLASS__, 'getRoutes'], true);
 
         require $file;
     }

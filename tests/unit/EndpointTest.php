@@ -97,4 +97,26 @@ class EndpointTest extends TestCase
 
         $endpoint->getVars('DELETE');
     }
+
+    public function testGetUniqueRoutes()
+    {
+        $endpoint = (new Endpoint('/users/*'))
+            ->withRoute('GET', ['action' => 'get-user'], [])
+            ->withRoute('POST', ['action' => 'update-user'], ['id' => 1])
+            ->withRoute('PUT', ['action' => 'update-user'], ['id' => 1])
+            ->withRoute('PATCH', ['action' => 'update-user'], [])
+            ->withRoute('UPDATE', ['action' => 'update-user'], ['id' => 1])
+            ->withRoute('SAVE', ['action' => 'update-user'], []);
+
+        $expected = [
+            [['GET'], ['action' => 'get-user'], []],
+            [['POST', 'PUT', 'UPDATE'], ['action' => 'update-user'], ['id' => 1]],
+            [['PATCH', 'SAVE'], ['action' => 'update-user'], []],
+        ];
+
+        $routes = $endpoint->getUniqueRoutes();
+
+        $this->assertInstanceOf(\Generator::class, $routes);
+        $this->assertEquals($expected, iterator_to_array($routes, true));
+    }
 }
