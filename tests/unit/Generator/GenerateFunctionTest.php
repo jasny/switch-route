@@ -6,7 +6,7 @@ namespace Jasny\SwitchRoute\Tests\Generator;
 
 use Closure;
 use Jasny\SwitchRoute\Endpoint;
-use Jasny\SwitchRoute\Generator\GenerateScript;
+use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
@@ -14,10 +14,10 @@ use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
 /**
- * @covers \Jasny\SwitchRoute\Generator\GenerateScript
+ * @covers \Jasny\SwitchRoute\Generator\GenerateFunction
  * @covers \Jasny\SwitchRoute\Generator\AbstractGenerate
  */
-class GenerateScriptTest extends TestCase
+class GenerateFunctionTest extends TestCase
 {
     use RoutesTrait;
 
@@ -33,9 +33,7 @@ class GenerateScriptTest extends TestCase
                 continue;
             }
 
-            for ($index = 0, $methodCount = substr_count($key, '|') + 1; $index < $methodCount; $index++) {
-                $routeArgs[] = [$route['controller'] ?? null, $route['action'] ?? null, $isClosure];
-            }
+            $routeArgs[] = [$route['controller'] ?? null, $route['action'] ?? null, $isClosure];
         }
 
         return $routeArgs;
@@ -51,14 +49,15 @@ class GenerateScriptTest extends TestCase
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
             ->withConsecutive(...$routeArgs)
             ->willReturnCallback(function ($controller, $action, callable $genArg) {
-                return sprintf("call('%s', '%s', %s)", $controller, $action, $genArg('id', '', null));
+                $arg = $action !== 'not-found' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);
+                return sprintf("call('%s', '%s', %s)", $controller, $action, $arg);
             });
 
-        $generate = new GenerateScript($invoker);
+        $generate = new GenerateFunction($invoker);
 
-        $code = $generate('', $routes, $structure);
+        $code = $generate('route_generate_function_test', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-script-test.phps');
+        $expected = file_get_contents(__DIR__ . '/assets/generate-function-test.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -72,11 +71,11 @@ class GenerateScriptTest extends TestCase
             ->with('info', null, $this->isInstanceOf(Closure::class))
             ->willReturn('info()');
 
-        $generate = new GenerateScript($invoker);
+        $generate = new GenerateFunction($invoker);
 
-        $code = $generate('', $routes, $structure);
+        $code = $generate('route_generate_function_test_default', $routes, $structure);
 
-        $expected = file_get_contents(__DIR__ . '/assets/generate-script-test-default.phps');
+        $expected = file_get_contents(__DIR__ . '/assets/generate-function-test-default.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -91,7 +90,7 @@ class GenerateScriptTest extends TestCase
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->never())->method('generateInvocation');
 
-        $generate = new GenerateScript($invoker);
+        $generate = new GenerateFunction($invoker);
 
         $generate('', $routes, $structure);
     }
@@ -108,7 +107,7 @@ class GenerateScriptTest extends TestCase
         $invoker->expects($this->once())->method('generateInvocation')
             ->willThrowException(new ReflectionException("Can't call info()"));
 
-        $generate = new GenerateScript($invoker);
+        $generate = new GenerateFunction($invoker);
 
         $generate('', $routes, $structure);
     }

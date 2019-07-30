@@ -26,7 +26,7 @@ class Generator
      */
     public function __construct(callable $generate = null)
     {
-        $this->generateCode = $generate ?? new GenerateScript();
+        $this->generateCode = $generate ?? new GenerateFunction();
     }
 
     /**
@@ -35,12 +35,12 @@ class Generator
      * @param string   $class      Class name that should be generated (empty string if no class).
      * @param string   $file       Filename to store the script.
      * @param callable $getRoutes  Callback to get an array with the routes.
-     * @param bool     $force      Always generate a new script, even if it already exists.
+     * @param bool     $overwrite  Overwrite existing file.
      * @throws RuntimeException if file could not be created.
      */
-    public function generate(string $class, string $file, callable $getRoutes, bool $force = false): void
+    public function generate(string $class, string $file, callable $getRoutes, bool $overwrite = true): void
     {
-        if (!$force && $this->scriptExists($file)) {
+        if (!$overwrite && $this->scriptExists($file)) {
             return;
         }
 

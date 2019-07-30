@@ -1,4 +1,4 @@
-![jasny-banner](https://user-images.githubusercontent.com/100821/61325728-9dfe9e80-a815-11e9-9e47-910fa7330d55.png)
+![jasny-banner](https://user-images.githubusercontent.com/100821/62123924-4c501c80-b2c9-11e9-9677-2ebc21d9b713.png)
 
 Switch Route
 ===
@@ -52,14 +52,28 @@ Regular expressions on path variables (eg `{id:\d+}`) is **not** supported.
 
 ### Basic
 
+By default the generator generates a function to route requests.
+
 ```php
 use Jasny\SwitchRoute\Generator as RouteGenerator;
 use Jasny\SwitchRoute\Invoker as RouteInvoker;
 
-$generator = new RouteGenerator();
-$generator->generate('', 'tmp/generated/route.php', 'getRoutes');
+// Always generate in development env, but not in production.
+$overwrite = (getenv('APPLIACTION_ENV') ?: 'dev') === 'dev';
 
+$generator = new RouteGenerator();
+$generator->generate('route', 'tmp/generated/route.php', 'getRoutes', $overwrite);
+```
+
+To route, include the generated file and call the `route` function.
+
+```php
 require 'tmp/generated/route.php';
+
+$method = $_SERVER["REQUEST_METHOD"];
+$path = rawurldecode(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH));
+
+route($method, $path);
 ```
 
 ### PSR-15 compatible middleware

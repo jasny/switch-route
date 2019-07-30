@@ -12,30 +12,27 @@ use org\bovigo\vfs\vfsStreamDirectory;
 /**
  * @coversNothing
  */
-class ScriptTest extends TestCase
+class FunctionTest extends TestCase
 {
     /**
      * @var vfsStreamDirectory
      */
     protected static $root;
 
-    /**
-     * @var string
-     */
-    protected static $file;
-
     public static function setUpBeforeClass(): void
     {
         self::$root = vfsStream::setup('tmp');
-        self::$file = vfsStream::url('tmp/generated/routes.php');
+        $file = vfsStream::url('tmp/generated/routes.php');
 
         $invoker = new Invoker(function ($class, $action) {
             [$class, $method] = Invoker::createInvokable($class, $action);
             return [__NAMESPACE__ . '\\Support\\Basic\\' . $class, $method];
         });
 
-        $generator = new Generator(new Generator\GenerateScript($invoker, '$method', '$path'));
-        $generator->generate('', self::$file, [__CLASS__, 'getRoutes']);
+        $generator = new Generator(new Generator\GenerateFunction($invoker));
+        $generator->generate('route', $file, [__CLASS__, 'getRoutes']);
+
+        require $file;
     }
 
     public static function tearDownAfterClass(): void
@@ -48,7 +45,7 @@ class ScriptTest extends TestCase
      */
     public function test(string $method, string $path, $expected)
     {
-        $result = require self::$file;
+        $result = route($method, $path);
 
         $this->assertEquals($expected, $result);
     }

@@ -128,7 +128,17 @@ CODE;
     protected function generateDefault(?Endpoint $endpoint): string
     {
         if ($endpoint === null) {
-            return 'return false;';
+            return <<<CODE
+if (\$allowedMethods === []) {
+    http_response_code(404);
+    echo "Not Found";
+} else {
+    http_response_code(405);
+    header('Allow: ' . join(', ', \$allowedMethods));
+    echo "Method Not Allowed";
+}
+CODE;
+
         }
 
         $genArg = function ($name, $type, $default) {
