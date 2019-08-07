@@ -147,7 +147,7 @@ class Generator
      * Split path into segments and extract variables.
      *
      * @param string $path
-     * @return array{array, array}
+     * @return array[]
      */
     protected function splitPath(string $path): array
     {
