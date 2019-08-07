@@ -44,7 +44,7 @@ trait RoutesTrait
             "export" => [
                 "\0" => new Endpoint("/export"),
             ],
-            "*" => new Endpoint(''),
+            "\e" => new Endpoint(''),
         ];
 
         $structure["\0"] = $structure["\0"]->withRoute('GET', ['controller' => 'info'], []);
@@ -66,7 +66,7 @@ trait RoutesTrait
         $structure["export"]["\0"] = $structure["export"]["\0"]
             ->withRoute('POST', ['include' => 'scripts/export.php'], []);
 
-        $structure["*"] = $structure["*"]->withRoute('', ['action' => 'not-found'], []);
+        $structure["\e"] = $structure["\e"]->withRoute('', ['action' => 'not-found'], []);
 
         return $structure;
     }

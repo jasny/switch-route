@@ -16,7 +16,6 @@
     },
     "require": {
         "php": ">=7.2.0",
-        "ext-zend-opcache": "*",
         "jasny/reflection-factory": "^1.1.1",
         "psr/http-factory": "^1.0",
         "psr/http-message": "^1.0",
@@ -25,9 +24,13 @@
     "require-dev": {
         "ext-http_message": "*",
         "ext-json": "*",
+        "ext-zend-opcache": "*",
         "jasny/php-code-quality": "^2.5",
         "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0"
+    },
+    "suggest": {
+        "ext-zend-opcache": "May prevent filesystem reads"
     },
     "autoload": {
         "psr-4": {
@@ -42,12 +45,9 @@
     },
     "scripts": {
         "test": [
-            "phpunit",
             "phpstan analyse",
+            "phpunit",
             "phpcs -p src"
-        ],
-        "post-create-project-cmd": [
-            "bash init.sh && rm init.sh"
         ]
     },
     "config": {

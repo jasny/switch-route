@@ -33,6 +33,8 @@ abstract class AbstractGenerate
     protected function generateSwitch(array $structure, int $level = 0): string
     {
         $indent = str_repeat(' ', $level * 8);
+
+        $code = [];
         $code[] = $indent . sprintf("switch (\$segments[{$level}] ?? %s) {", '"\0"');
 
         foreach ($structure as $segment => $sub) {
@@ -59,6 +61,7 @@ abstract class AbstractGenerate
      */
     protected function generateEndpoint(Endpoint $endpoint): string
     {
+        $code = [];
         $code[] = "switch (\$method) {";
 
         foreach ($endpoint->getUniqueRoutes() as [$methods, $route, $vars]) {

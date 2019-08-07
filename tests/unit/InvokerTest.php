@@ -64,7 +64,7 @@ class InvokerTest extends TestCase
         $genArg = $this->createCallbackMock($this->never());
 
         $invoker = new Invoker(null, $reflectionFactory);
-        $code = $invoker->generateInvocation($controller, $action, $genArg);
+        $code = $invoker->generateInvocation(compact('controller', 'action'), $genArg);
 
         $this->assertEquals(sprintf($expected, ''), $code);
     }
@@ -92,7 +92,7 @@ class InvokerTest extends TestCase
         });
 
         $invoker = new Invoker(null, $reflectionFactory);
-        $code = $invoker->generateInvocation($controller, $action, $genArg);
+        $code = $invoker->generateInvocation(compact('controller', 'action'), $genArg);
 
         $this->assertEquals($expectedCode, $code);
     }
@@ -107,7 +107,7 @@ class InvokerTest extends TestCase
         $genArg = $this->createCallbackMock($this->once(), ['id', '', null], "\$var['id'] ?? NULL");
 
         $invoker = new Invoker(null, $reflectionFactory);
-        $code = $invoker->generateInvocation('foo', 'bar', $genArg);
+        $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'bar'], $genArg);
 
         $this->assertEquals("FooController::barAction(\$var['id'] ?? NULL)", $code);
     }
@@ -133,7 +133,7 @@ class InvokerTest extends TestCase
         $genArg = $this->createCallbackMock($this->never());
 
         $invoker = new Invoker($createInvokable, $reflectionFactory);
-        $code = $invoker->generateInvocation($controller, $action, $genArg);
+        $code = $invoker->generateInvocation(compact('controller', 'action'), $genArg);
 
         $this->assertEquals(sprintf($expected, ''), $code);
     }
@@ -159,7 +159,7 @@ class InvokerTest extends TestCase
         };
 
         $invoker = new Invoker($createInvokable, $reflectionFactory);
-        $code = $invoker->generateInvocation('foo', 'to-do', $genArg);
+        $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
 
         $this->assertEquals("foo_todo(\$var['id'] ?? NULL)", $code);
     }
@@ -176,7 +176,7 @@ class InvokerTest extends TestCase
         $createInvokable = $this->createCallbackMock($this->once(), ['foo', 'to-do'], 'App\\Foo::toDo');
 
         $invoker = new Invoker($createInvokable, $reflectionFactory);
-        $code = $invoker->generateInvocation('foo', 'to-do', $genArg);
+        $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
 
         $this->assertEquals("(new App\\Foo)->toDo(\$var['id'] ?? NULL)", $code);
     }
@@ -213,7 +213,7 @@ class InvokerTest extends TestCase
 
         $invoker = new Invoker($createInvokable, $reflectionFactory);
 
-        $invoker->generateInvocation('foo', 'to-do', $genArg);
+        $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
     }
 
     public function testWithNeitherControllerOrAction()
@@ -228,6 +228,25 @@ class InvokerTest extends TestCase
 
         $invoker = new Invoker(null, $reflectionFactory);
 
-        $invoker->generateInvocation(null, null, $genArg);
+        $invoker->generateInvocation(['controller' => null, 'action' => null], $genArg);
+    }
+
+    public function testGenerateDefault()
+    {
+        $expected = <<<CODE
+if (\$allowedMethods === []) {
+    http_response_code(404);
+    echo "Not Found";
+} else {
+    http_response_code(405);
+    header('Allow: ' . join(', ', \$allowedMethods));
+    echo "Method Not Allowed";
+}
+CODE;
+
+        $reflectionFactory = $this->createMock(ReflectionFactory::class);
+        $invoker = new Invoker(null, $reflectionFactory);
+
+        $this->assertEquals($expected, $invoker->generateDefault());
     }
 }

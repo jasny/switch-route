@@ -17,7 +17,7 @@ use ReflectionMethod;
 /**
  * Invoke the action or script specified by the route.
  */
-class Invoker
+class Invoker implements InvokerInterface
 {
     /**
      * Callback to turn a controller name and action name into a callable.
@@ -48,19 +48,16 @@ class Invoker
      * The argument template should have two '%s' placeholders. The first is used for the argument name, the second for
      *   the default value.
      *
-     * @param string|null $controller
-     * @param string|null $action
-     * @param callable    $genArg     Callback to generate code for arguments.
-     * @param string      $new        PHP code to instantiate class.
+     * @param array    $route
+     * @param callable $genArg  Callback to generate code for arguments.
+     * @param string   $new     PHP code to instantiate class.
      * @return string
      * @throws ReflectionException
      */
-    public function generateInvocation(
-        ?string $controller,
-        ?string $action,
-        callable $genArg,
-        string $new = '(new %s)'
-    ): string {
+    public function generateInvocation(array $route, callable $genArg, string $new = '(new %s)'): string
+    {
+        ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
+
         $invokable = ($this->createInvokable)($controller, $action);
 
         if (is_string($invokable) && strpos($invokable, '::') !== false) {
@@ -78,9 +75,9 @@ class Invoker
     /**
      * Generate the code for a method call.
      *
-     * @param callable&array(string, string) $invokable
-     * @param ReflectionMethod               $reflection
-     * @param string                         $new         PHP code to instantiate class.
+     * @param callable&array    $invokable
+     * @param ReflectionMethod  $reflection
+     * @param string            $new         PHP code to instantiate class.
      * @return string
      */
     protected function generateInvocationMethod(
@@ -150,6 +147,25 @@ class Invoker
         return is_array($invokable)
             ? $this->reflection->reflectMethod($invokable[0], $invokable[1])
             : $this->reflection->reflectFunction($invokable);
+    }
+
+    /**
+     * Generate standard code for when no route matches.
+     *
+     * @return string
+     */
+    public function generateDefault(): string
+    {
+        return <<<CODE
+if (\$allowedMethods === []) {
+    http_response_code(404);
+    echo "Not Found";
+} else {
+    http_response_code(405);
+    header('Allow: ' . join(', ', \$allowedMethods));
+    echo "Method Not Allowed";
+}
+CODE;
     }
 
     /**

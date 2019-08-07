@@ -108,7 +108,6 @@ final class Endpoint
     /**
      * Get unique routes with methods and vars.
      *
-     * @param array $routes
      * @return \Generator
      */
     public function getUniqueRoutes(): \Generator

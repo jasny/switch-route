@@ -6,6 +6,7 @@ namespace Jasny\SwitchRoute\FunctionalTests;
 
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Invoker;
+use Jasny\SwitchRoute\NotFoundMiddleware;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Factory\Psr17Factory as HttpFactory;
 use org\bovigo\vfs\vfsStream;
@@ -41,6 +42,11 @@ class MiddlewareTest extends TestCase
     protected $routeMiddleware;
 
     /**
+     * @var NotFoundMiddleware
+     */
+    protected $notFoundMiddleware;
+
+    /**
      * @var MiddlewareInterface
      */
     protected $invokeMiddleware;
@@ -57,7 +63,7 @@ class MiddlewareTest extends TestCase
 
     protected static function createRouteMiddleware(): void
     {
-        $file = '/tmp/generated/RouteMiddleware.php'; //vfsStream::url('tmp/generated/RouteMiddleware.php');
+        $file = '/tmp/generated/RouteMiddleware.php';//vfsStream::url('tmp/generated/RouteMiddleware.php');
 
         $generator = new Generator(new Generator\GenerateRouteMiddleware());
         $generator->generate(self::$namespace . '\\RouteMiddleware', $file, [__CLASS__, 'getRoutes'], true);
@@ -67,7 +73,7 @@ class MiddlewareTest extends TestCase
 
     protected static function createInvokeMiddleware(): void
     {
-        $file = '/tmp/generated/InvokeMiddleware.php'; //vfsStream::url('tmp/generated/InvokeMiddleware.php');
+        $file = '/tmp/generated/InvokeMiddleware.php';//vfsStream::url('tmp/generated/InvokeMiddleware.php');
 
         $invoker = new Invoker(function ($class, $action) {
             [$class, $method] = Invoker::createInvokable($class, $action);
@@ -87,31 +93,35 @@ class MiddlewareTest extends TestCase
 
     public function setUp(): void
     {
+        $factory = new HttpFactory();
+
         $routeMiddlewareClass = self::$namespace . '\\RouteMiddleware';
         $this->routeMiddleware = new $routeMiddlewareClass();
 
-        $factory = new HttpFactory();
+        $this->notFoundMiddleware = new NotFoundMiddleware($factory);
 
         $instantiate = function (string $class) use ($factory) {
             return new $class($factory);
         };
 
         $invokeMiddlewareClass = self::$namespace . '\\InvokeMiddleware';
-        $this->invokeMiddleware = new $invokeMiddlewareClass($factory, $instantiate);
+        $this->invokeMiddleware = new $invokeMiddlewareClass($instantiate);
     }
 
     /**
      * @dataProvider provider
      */
-    public function test(string $method, string $path, $expected)
+    public function test(string $method, string $path, $expected, $expectedStatus = 200)
     {
-        $relay = new Relay([$this->routeMiddleware, $this->invokeMiddleware]);
+        $relay = new Relay([$this->routeMiddleware, $this->notFoundMiddleware, $this->invokeMiddleware]);
 
         /** @var ServerRequestInterface $request */
         $request = new ServerRequest($method, "https://example.com{$path}");
 
         $response = $relay->handle($request);
         $this->assertInstanceOf(ResponseInterface::class, $response);
+
+        $this->assertEquals($expectedStatus, $response->getStatusCode());
 
         if ($response->getStatusCode() != 200) {
             $result = $response->getStatusCode() . ' ' . $response->getReasonPhrase()

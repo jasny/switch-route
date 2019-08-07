@@ -6,8 +6,6 @@ namespace Jasny\SwitchRoute\Generator;
 
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\InvalidRouteException;
-use Jasny\SwitchRoute\Invoker;
-use ReflectionException;
 
 /**
  * Generate a route middleware that sets server request attributes.
@@ -24,8 +22,8 @@ class GenerateRouteMiddleware extends AbstractGenerate
      */
     public function __invoke(string $name, array $routes, array $structure): string
     {
-        $default = $structure['*'] ?? null;
-        unset($structure['*']);
+        $default = $structure["\e"] ?? null;
+        unset($structure["\e"]);
 
         $applyRoutingCode = self::indent($this->generateSwitch($structure), 8) . "\n\n"
             . self::indent($this->generateDefault($default), 8);
@@ -34,6 +32,8 @@ class GenerateRouteMiddleware extends AbstractGenerate
 
         return <<<CODE
 <?php
+
+declare(strict_types=1);
 {$namespace}
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -91,13 +91,13 @@ CODE;
     /**
      * Generate routing code for an endpoint.
      *
-     * @param string $key
+     * @param string $_
      * @param array  $route
      * @param array  $vars
      * @return string
      * @throws InvalidRouteException
      */
-    protected function generateRoute(string $key, array $route, array $vars): string
+    protected function generateRoute(string $_, array $route, array $vars): string
     {
         $code = ['return $request'];
 

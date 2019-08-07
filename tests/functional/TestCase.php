@@ -64,9 +64,9 @@ abstract class TestCase extends Base
 
             ['POST', '/export', ['data', 'export']],
 
-            ['POST', '/foo', "404 Not Found"],
-            ['DELETE', '/users', "405 Method Not Allowed (GET, POST)"],
-            ['PATCH', '/users/1', "405 Method Not Allowed (GET, POST, PUT, DELETE)"],
+            ['POST', '/foo', "404 Not Found", 404],
+            ['DELETE', '/users', "405 Method Not Allowed (GET, POST)", 405],
+            ['PATCH', '/users/1', "405 Method Not Allowed (GET, POST, PUT, DELETE)", 405],
 
             // Test with trailing slash
             ['GET', '/users/', array_values($this->users)],

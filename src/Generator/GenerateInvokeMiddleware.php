@@ -6,6 +6,7 @@ namespace Jasny\SwitchRoute\Generator;
 
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
+use Jasny\SwitchRoute\InvokerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 
@@ -15,16 +16,16 @@ use ReflectionException;
 class GenerateInvokeMiddleware extends AbstractGenerate
 {
     /**
-     * @var Invoker
+     * @var InvokerInterface
      */
     protected $invoker;
 
     /**
      * GenerateScript constructor.
      *
-     * @param Invoker $invoker
+     * @param InvokerInterface $invoker
      */
-    public function __construct(Invoker $invoker = null)
+    public function __construct(InvokerInterface $invoker = null)
     {
         $this->invoker = $invoker ?? new Invoker();
     }
@@ -40,13 +41,16 @@ class GenerateInvokeMiddleware extends AbstractGenerate
     public function __invoke(string $name, array $routes, array $structure): string
     {
         $invokeCode = self::indent($this->generateSwitchFromRoutes($routes), 8)
-            . (!isset($structure['*']) ? "\n\n" . '$this->notFound($request);' : '');
+            . (!isset($structure["\e"]) ? "\n\n" . '$this->notFound($request);' : '');
 
         [$namespace, $class] = $this->generateNs($name);
 
         return <<<CODE
 <?php
+
+declare(strict_types=1);
 {$namespace}
+use Jasny\SwitchRoute\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -62,12 +66,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 class {$class} implements MiddlewareInterface
 {
     /**
-     * @var ResponseFactoryInterface
-     */
-    protected \$responseFactory;
-
-    /**
-     * @var callable
+     * @var callable|null
      */
     protected \$instantiate;
 
@@ -75,31 +74,9 @@ class {$class} implements MiddlewareInterface
      * @param ResponseFactoryInterface \$responseFactory  Used for default not-found response.
      * @param callable                 \$instantiate      Instantiate controller / action classes.
      */
-    public function __construct(ResponseFactoryInterface \$responseFactory, ?callable \$instantiate = null)
+    public function __construct(?callable \$instantiate = null)
     {
-        \$this->responseFactory = \$responseFactory;
         \$this->instantiate = \$instantiate;
-    }
-
-    /**
-     * The default action for when no route matches.
-     */
-    protected function notFound(ServerRequestInterface \$request): ResponseInterface
-    {
-        \$allowedMethods = \$request->getAttribute('route:allowed_methods', []);
-
-        if (\$allowedMethods === []) {
-            \$response = \$this->responseFactory->createResponse(404)
-                ->withHeader('Content-Type', 'text/plain');
-            \$response->getBody()->write('Not Found');
-        } else {
-            \$response = \$this->responseFactory->createResponse(405)
-                ->withHeader('Content-Type', 'text/plain')
-                ->withHeader('Allow', join(', ', \$allowedMethods));
-            \$response->getBody()->write('Method Not Allowed');
-        }
-
-        return \$response;
     }
 
     /**
@@ -116,6 +93,8 @@ class {$class} implements MiddlewareInterface
         \$action = \$request->getAttribute('route:action', '');
 
 {$invokeCode}
+
+        throw new NotFoundException("No default route specified");
     }
 }
 CODE;
@@ -132,13 +111,14 @@ CODE;
         $grouped = $this->groupRoutes($routes);
         $grouped[''][''] = null;
 
+        $code = [];
         $code[] = "switch (\$controller) {";
 
-        foreach ($grouped as $controller => $routes) {
+        foreach ($grouped as $controller => $controllerRoutes) {
             $code[] = "    case '" . addslashes($controller) . "':";
             $code[] = "        switch (\$action) {";
 
-            foreach ($routes as $action => $key) {
+            foreach ($controllerRoutes as $action => $key) {
                 $route = [
                     'controller' => $controller !== '' ? $controller : null,
                     'action' => $action !== '' ? $action : null,
@@ -203,8 +183,7 @@ CODE;
     {
         try {
             $invocation = $this->invoker->generateInvocation(
-                $route['controller'] ?? null,
-                $route['action'] ?? null,
+                $route,
                 function ($name, $type, $default) {
                     if ($type == ServerRequestInterface::class || is_a($type, ServerRequestInterface::class, true)) {
                         return '$request';

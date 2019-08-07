@@ -34,7 +34,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
                 continue;
             }
 
-            $routeArgs[] = [$route['controller'] ?? null, $route['action'] ?? null, $isClosure];
+            $routeArgs[] = [$route + ['controller' => null, 'action' => null], $isClosure];
         }
 
         return $routeArgs;
@@ -49,7 +49,8 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
             ->withConsecutive(...$routeArgs)
-            ->willReturnCallback(function ($controller, $action, callable $genArg) {
+            ->willReturnCallback(function ($route, callable $genArg) {
+                ['controller' => $controller, 'action' => $action] = $route;
                 $request = $genArg('request', ServerRequestInterface::class, null);
                 $id = $genArg('id', '', null);
                 return sprintf("call('%s', '%s', %s, %s)", $controller, $action, $request, $id);

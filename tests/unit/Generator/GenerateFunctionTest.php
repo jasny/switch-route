@@ -33,7 +33,7 @@ class GenerateFunctionTest extends TestCase
                 continue;
             }
 
-            $routeArgs[] = [$route['controller'] ?? null, $route['action'] ?? null, $isClosure];
+            $routeArgs[] = [$route, $isClosure];
         }
 
         return $routeArgs;
@@ -48,7 +48,8 @@ class GenerateFunctionTest extends TestCase
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
             ->withConsecutive(...$routeArgs)
-            ->willReturnCallback(function ($controller, $action, callable $genArg) {
+            ->willReturnCallback(function ($route, callable $genArg) {
+                ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
                 $arg = $action !== 'not-found' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);
                 return sprintf("call('%s', '%s', %s)", $controller, $action, $arg);
             });
@@ -68,14 +69,40 @@ class GenerateFunctionTest extends TestCase
 
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->once())->method('generateInvocation')
-            ->with('info', null, $this->isInstanceOf(Closure::class))
+            ->with(['controller' => 'info'], $this->isInstanceOf(Closure::class))
             ->willReturn('info()');
-
+        $invoker->expects($this->once())->method('generateDefault')
+            ->willReturn("http_response_code(404);\necho \"Not Found\";");
         $generate = new GenerateFunction($invoker);
 
         $code = $generate('route_generate_function_test_default', $routes, $structure);
 
         $expected = file_get_contents(__DIR__ . '/expected/generate-function-test-default.phps');
+        $this->assertEquals($expected, $code);
+    }
+
+    public function testAllVars()
+    {
+        $routes = ['GET /{foo}/{bar}/{qux}' => ['controller' => 'info']];
+        $vars = ['foo' => 0, 'bar' => 1, 'qux' => 2];
+        $structure = ["*" => ["*" => ["*" => [
+            "\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], $vars)
+        ]]]];
+
+        $invoker = $this->createMock(Invoker::class);
+        $invoker->expects($this->once())->method('generateInvocation')
+            ->with(['controller' => 'info'], $this->isInstanceOf(Closure::class))
+            ->willReturnCallback(function ($route, callable $genArg) {
+                return $genArg(null);
+            });
+        $invoker->expects($this->once())->method('generateDefault')
+            ->willReturn("return false;");
+
+        $generate = new GenerateFunction($invoker);
+
+        $code = $generate('route_generate_function_test_all_vars', $routes, $structure);
+
+        $expected = file_get_contents(__DIR__ . '/expected/generate-function-test-all-vars.phps');
         $this->assertEquals($expected, $code);
     }
 

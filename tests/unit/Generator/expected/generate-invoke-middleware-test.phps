@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+use Jasny\SwitchRoute\NotFoundException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -15,12 +18,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 class InvokeMiddleware implements MiddlewareInterface
 {
     /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
-
-    /**
-     * @var callable
+     * @var callable|null
      */
     protected $instantiate;
 
@@ -28,31 +26,9 @@ class InvokeMiddleware implements MiddlewareInterface
      * @param ResponseFactoryInterface $responseFactory  Used for default not-found response.
      * @param callable                 $instantiate      Instantiate controller / action classes.
      */
-    public function __construct(ResponseFactoryInterface $responseFactory, ?callable $instantiate = null)
+    public function __construct(?callable $instantiate = null)
     {
-        $this->responseFactory = $responseFactory;
         $this->instantiate = $instantiate;
-    }
-
-    /**
-     * The default action for when no route matches.
-     */
-    protected function notFound(ServerRequestInterface $request): ResponseInterface
-    {
-        $allowedMethods = $request->getAttribute('route:allowed_methods', []);
-
-        if ($allowedMethods === []) {
-            $response = $this->responseFactory->createResponse(404)
-                ->withHeader('Content-Type', 'text/plain');
-            $response->getBody()->write('Not Found');
-        } else {
-            $response = $this->responseFactory->createResponse(405)
-                ->withHeader('Content-Type', 'text/plain')
-                ->withHeader('Allow', join(', ', $allowedMethods));
-            $response->getBody()->write('Method Not Allowed');
-        }
-
-        return $response;
     }
 
     /**
@@ -102,5 +78,7 @@ class InvokeMiddleware implements MiddlewareInterface
                 }
                 break;
         }
+
+        throw new NotFoundException("No default route specified");
     }
 }

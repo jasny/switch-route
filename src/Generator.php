@@ -32,13 +32,13 @@ class Generator
     /**
      * Generate a switch script based on the routes.
      *
-     * @param string   $class      Class name that should be generated (empty string if no class).
+     * @param string   $name       Class or function name that should be generated.
      * @param string   $file       Filename to store the script.
      * @param callable $getRoutes  Callback to get an array with the routes.
      * @param bool     $overwrite  Overwrite existing file.
      * @throws RuntimeException if file could not be created.
      */
-    public function generate(string $class, string $file, callable $getRoutes, bool $overwrite): void
+    public function generate(string $name, string $file, callable $getRoutes, bool $overwrite): void
     {
         if (!$overwrite && $this->scriptExists($file)) {
             return;
@@ -47,7 +47,7 @@ class Generator
         $routes = $getRoutes();
         $structure = $this->structureEndpoints($routes);
 
-        $code = ($this->generateCode)($class, $routes, $structure);
+        $code = ($this->generateCode)($name, $routes, $structure);
         if (!is_string($code)) {
             throw new LogicException("Expected code as string, got " . gettype($code));
         }
@@ -97,7 +97,9 @@ class Generator
      */
     protected function scriptExists(string $file): bool
     {
-        return opcache_is_script_cached($file) || file_exists($file);
+        /** @noinspection PhpComposerExtensionStubsInspection */
+        return (function_exists('opcache_is_script_cached') && opcache_is_script_cached($file))
+            || file_exists($file);
     }
 
     /**
@@ -112,7 +114,7 @@ class Generator
 
         foreach ($routes as $key => $route) {
             if ($key === 'default') {
-                $structure["*"] = (new Endpoint(''))->withRoute('', $routes['default'], []);
+                $structure["\e"] = (new Endpoint(''))->withRoute('', $routes['default'], []);
                 continue;
             }
 
@@ -157,7 +159,7 @@ class Generator
         $vars = [];
 
         foreach ($segments as $index => &$segment) {
-            if (preg_match( '/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment, $match)) {
+            if (preg_match('/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment, $match)) {
                 $vars[$match['var']] = $index;
                 $segment = '*';
             }
