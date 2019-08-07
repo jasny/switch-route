@@ -9,15 +9,28 @@ SwitchRoute
 [![Packagist Stable Version](https://img.shields.io/packagist/v/jasny/switch-route.svg)](https://packagist.org/packages/jasny/switch-route)
 [![Packagist License](https://img.shields.io/packagist/l/jasny/switch-route.svg)](https://packagist.org/packages/jasny/switch-route)
 
-Generating a PHP script for 10x faster routing.
+Generating a PHP script for faster routing.
 
 The traditional way of routing uses regular expressions. This method was improved by FastRoute, which compiles
 all routes to a single regexp. **SwitchRoute** abandons this completely, opting for a series of `switch` statements
 instead.
 
 Processing the routes to produce the switch statements isn't particularly fast. However, the generation only need to
-happen when the routes change. Routing using the generated switch statements is 2x to 10x faster than with FastRoute
+happen when the routes change. Routing using the generated switch statements is up to 2x faster than with FastRoute
 using caching and up to 100x faster than any router not using caching.
+
+```
+============================= Average Case (path) =============================
+
+SwitchRoute            100% | ████████████████████████████████████████████████████████████  |
+FastRoute (cache)       59% | ███████████████████████████████████                           |
+SwitchRoute (psr)       20% | ███████████                                                   |
+Symfony                  2% | █                                                             |
+FastRoute                1% |                                                               |
+Laravel                  1% |                                                               |
+```
+
+**[See all benchmark results](https://github.com/jasny/php-framework-benchmark)**
 
 Installation
 ---
