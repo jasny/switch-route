@@ -22,9 +22,7 @@
         "psr/http-server-middleware": "^1.0"
     },
     "require-dev": {
-        "ext-http_message": "*",
         "ext-json": "*",
-        "ext-zend-opcache": "*",
         "jasny/php-code-quality": "^2.5",
         "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0"
