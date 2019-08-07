@@ -120,19 +120,20 @@ class Invoker implements InvokerInterface
         $valid = is_callable($invokable, true) &&
             (is_string($invokable) || (is_array($invokable) && is_string($invokable[0]) && is_string($invokable[1])));
 
-        if (!$valid) {
-            if (is_array($invokable)) {
-                $types = array_map(function ($item) {
-                    return is_object($item) ? get_class($item) : gettype($item);
-                }, $invokable);
-                $type = '[' . join(', ', $types) . ']';
-            } else {
-                $type = is_object($invokable) ? get_class($invokable) : gettype($invokable);
-            }
-
-            throw new LogicException("Invokable should be a function or array with class name and method, "
-                . "{$type} given");
+        if ($valid) {
+            return;
         }
+
+        if (is_array($invokable)) {
+            $types = array_map(static function ($item) {
+                return is_object($item) ? get_class($item) : gettype($item);
+            }, $invokable);
+            $type = '[' . join(', ', $types) . ']';
+        } else {
+            $type = is_object($invokable) ? get_class($invokable) : gettype($invokable);
+        }
+
+        throw new LogicException("Invokable should be a function or array with class name and method, {$type} given");
     }
 
     /**
