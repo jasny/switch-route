@@ -30,7 +30,7 @@ FastRoute                1% |                                                   
 Laravel                  1% |                                                               |
 ```
 
-**[See all benchmark results](https://github.com/jasny/php-framework-benchmark)**
+**[See all benchmark results](https://github.com/jasny/php-router-benchmark)**
 
 Installation
 ---
