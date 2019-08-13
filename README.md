@@ -145,7 +145,7 @@ Use any PSR-15 compatible request dispatcher, like [Relay](https://relayphp.com/
 
 ```php
 use App\Generated\RouteMiddleware;
-use App\Generated\InvokeMiddleware
+use App\Generated\InvokeMiddleware;
 use Jasny\SwitchRoute\NotFoundMiddleware;
 use HttpMessage\Factory as HttpFactory;
 use HttpMessage\ServerRequest;
