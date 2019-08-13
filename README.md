@@ -92,7 +92,7 @@ By default the generator generates a function to route requests.
 use Jasny\SwitchRoute\Generator;
 
 // Always generate in development env, but not in production.
-$overwrite = (getenv('APPLIACTION_ENV') ?: 'dev') === 'dev';
+$overwrite = (getenv('APPLICATION_ENV') ?: 'dev') === 'dev';
 
 $generator = new Generator();
 $generator->generate('route', 'generated/route.php', 'getRoutes', $overwrite);
