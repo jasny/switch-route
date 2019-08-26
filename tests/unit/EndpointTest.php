@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
+use Exception;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\TestHelper;
@@ -27,8 +28,20 @@ class EndpointTest extends TestCase
     public function testWithRoute()
     {
         $endpoint = new Endpoint('/users/*');
-        $newEndpoint = $endpoint->withRoute('GET', ['action' => 'get-user'], ['id' => 1]);
-
+        /**
+         * withRoute method uses strtoupper($method) as key, so need pass lowercase and expect uppercase
+         * what if I could pass something like 'anything'?
+         */
+        $newEndpoint = $endpoint->withRoute('get', ['action' => 'get-user'], ['id' => 1]);
+        self::assertEquals(['GET'], $newEndpoint->getAllowedMethods());
+        try {
+            $newEndpoint->getVars('get');
+        } catch (Exception $exception) {
+            self::assertInstanceOf(OutOfBoundsException::class, $exception);
+            self::assertSame('Method \'get\' not available for endpoint \'/users/*\'', $exception->getMessage());
+            self::assertSame(0, $exception->getCode());
+        }
+        self::assertEquals(['id' => 1], $newEndpoint->getVars('GET'));
         $this->assertEquals(['GET' => ['action' => 'get-user']], $newEndpoint->getRoutes());
 
         // Test immutability
@@ -52,7 +65,12 @@ class EndpointTest extends TestCase
         $endpoint = (new Endpoint('/users/*'))
             ->withRoute('GET', [], [])
             ->withRoute('POST', [], [])
-            ->withRoute('PATCH', [], []);
+            ->withRoute('PATCH', [], [])
+            ->withRoute('', [], []);
+        /**
+         * getAllowedMethods must exclude empty methods
+         */
+        self::assertFalse(in_array('', $endpoint->getAllowedMethods()));
 
         $this->assertEquals(['GET', 'POST', 'PATCH'], $endpoint->getAllowedMethods());
     }

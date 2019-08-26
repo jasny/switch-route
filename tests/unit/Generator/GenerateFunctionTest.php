@@ -9,6 +9,7 @@ use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
+use Jasny\SwitchRoute\InvokerInterface;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -137,5 +138,36 @@ class GenerateFunctionTest extends TestCase
         $generate = new GenerateFunction($invoker);
 
         $generate('', $routes, $structure);
+    }
+
+    /**
+     * extend class and check if GenerateFunction protected methods is available
+     */
+    public function testMethodsVisibility()
+    {
+        $extendedGenerateFunction = new ExtendedGenerateFunction();
+        $extendedGenerateFunction->testMethodsVisibility();
+        self::assertTrue(true);
+    }
+}
+
+class ExtendedGenerateFunction extends GenerateFunction
+{
+    public function testMethodsVisibility()
+    {
+        $this->genArg([], 'null'); // I can't pass null
+        $this->generateDefault(null);
+        $this->generateEndpoint(new Endpoint('/*'));
+        $this->generateNs(Endpoint::class);
+        $this->generateRoute('path', ['controller' => __NAMESPACE__ . '\Dummy'], []); // I can't write DummyController::class
+        $this->generateSwitch([]);
+        assert($this->invoker instanceof InvokerInterface);
+    }
+}
+
+class DummyController
+{
+    public function defaultAction()
+    {
     }
 }

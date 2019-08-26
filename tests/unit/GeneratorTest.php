@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
+use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\TestHelper;
@@ -44,6 +45,7 @@ class GeneratorTest extends TestCase
 
         $generator = new Generator($generate);
         $generator->generate('FortyTwo', $path, $getRoutes, false);
+        self::assertTrue(file_exists($path));
 
         $this->assertFileExists($path);
         $this->assertEquals($script, file_get_contents($path));
@@ -162,5 +164,44 @@ class GeneratorTest extends TestCase
 
         $generator = new Generator($generate);
         $generator->generate('foo', $path, $getRoutes, true);
+    }
+
+    /**
+     * extend class and check if Generator protected methods is available
+     */
+    public function testMethodsVisibility() {
+        $extendedGenerator = new ExtendedGenerator();
+        $extendedGenerator->testMethodsVisibility();
+        self::assertTrue(true);
+    }
+
+    public function testStructureEndpoints()
+    {
+        $extendedGenerator = new ExtendedGenerator();
+        $routes = [
+            'default' => 'default',
+            'GET /test' => 'test'
+        ];
+        $structuredEndpoints = $extendedGenerator->getStructuredEndpoints($routes);
+        /** @var Endpoint $testEndpoint */
+        $testEndpoint = array_shift($structuredEndpoints['test']);
+        self::assertSame('/test', $testEndpoint->getPath());
+        self::assertTrue(in_array('GET', $testEndpoint->getAllowedMethods()));
+        self::assertSame(1, count($testEndpoint->getAllowedMethods()));
+    }
+}
+
+class ExtendedGenerator extends Generator
+{
+    public function testMethodsVisibility() {
+        $this->tryFs(function () {}, []);
+        $this->scriptExists('tmp/generated/routes.php');
+        $this->structureEndpoints([]);
+        $this->splitPath('path');
+    }
+
+    public function getStructuredEndpoints(array $routes)
+    {
+        return $this->structureEndpoints($routes);
     }
 }
