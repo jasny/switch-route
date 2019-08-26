@@ -23,6 +23,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "infection/infection": "^0.13.5",
         "jasny/php-code-quality": "^2.5",
         "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0"
@@ -45,7 +46,8 @@
         "test": [
             "phpstan analyse",
             "phpunit",
-            "phpcs -p src"
+            "phpcs -p src",
+            "infection --min-msi=85 --min-covered-msi=85 --log-verbosity=all"
         ]
     },
     "config": {
