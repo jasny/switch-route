@@ -87,6 +87,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Invalid route for 'GET /*'. Can't call info()");
+        $this->expectExceptionCode(0);
 
         $routes = ['GET /{id}' => ['controller' => 'info']];
         $structure = ["\0" => (new Endpoint('/*'))->withRoute('GET', ['controller' => 'info'], [])];
