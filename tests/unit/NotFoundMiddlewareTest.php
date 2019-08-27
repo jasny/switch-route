@@ -6,12 +6,15 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\NotFoundException;
 use Jasny\SwitchRoute\NotFoundMiddleware;
+use Nyholm\Psr7\Response;
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Relay\RequestHandler;
 
 /**
  * @covers \Jasny\SwitchRoute\NotFoundMiddleware
@@ -103,5 +106,40 @@ class NotFoundMiddlewareTest extends TestCase
         $result = $middleware->process($request, $handler);
 
         $this->assertSame($response, $result);
+    }
+
+    /**
+     * extend class and check if ExtendedNotFoundMiddleware protected methods is available
+     */
+    public function testMethodsVisibility()
+    {
+        $extendedNotFoundMiddleware = new ExtendedNotFoundMiddleware(new TestResponseFactory());
+        $extendedNotFoundMiddleware->testMethodsVisibility();
+        self::assertTrue(true);
+    }
+}
+
+class ExtendedNotFoundMiddleware extends NotFoundMiddleware
+{
+    public function testMethodsVisibility()
+    {
+        $this->notFound(new ServerRequest('POST', 'http://localhost'));
+        $this->process(new ServerRequest('POST', 'http://localhost'), new TestRequestHandler([]));
+    }
+}
+
+class TestRequestHandler extends RequestHandler
+{
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return new Response();
+    }
+}
+
+class TestResponseFactory implements ResponseFactoryInterface
+{
+    public function createResponse(int $code = 200, string $reasonPhrase = ''): ResponseInterface
+    {
+        return new Response();
     }
 }

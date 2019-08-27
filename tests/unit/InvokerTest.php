@@ -6,7 +6,9 @@ namespace Jasny\SwitchRoute\Tests;
 
 use BadMethodCallException;
 use Jasny\ReflectionFactory\ReflectionFactory;
+use Jasny\ReflectionFactory\ReflectionFactoryInterface;
 use Jasny\SwitchRoute\Invoker;
+use Jasny\SwitchRoute\Tests\Generator\DummyController;
 use Jasny\TestHelper;
 use LogicException;
 use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
@@ -26,8 +28,8 @@ class InvokerTest extends TestCase
     /**
      * Create reflection factory that will return a ReflectionMethod.
      *
-     * @param array                 $invokable
-     * @param bool                  $isStatic
+     * @param array $invokable
+     * @param bool $isStatic
      * @param ReflectionParameter[] $parameters
      * @return ReflectionFactory&MockObject
      */
@@ -248,5 +250,32 @@ CODE;
         $invoker = new Invoker(null, $reflectionFactory);
 
         $this->assertEquals($expected, $invoker->generateDefault());
+    }
+
+    /**
+     * extend class and check if ExtendedInvoker protected methods is available
+     */
+    public function testMethodsVisibility()
+    {
+        self::assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
+        $extendedInvoker = new ExtendedInvoker();
+        $extendedInvoker->testMethodsVisibility();
+        self::assertTrue(true);
+    }
+}
+
+class ExtendedInvoker extends Invoker
+{
+    public function testMethodsVisibility()
+    {
+        $this->generateDefault();
+//        $this->generateInvocationMethod([], new ReflectionMethod(static::class, 'generateDefault'));
+        $this->generateInvocation(['controller' => __NAMESPACE__ . '\Generator\Dummy'], function () {
+        });
+        $this->assertInvokable([DummyController::class, 'defaultAction']);
+        $this->generateInvocationArgs(new ReflectionFunction('time'), function () {
+        });
+        assert($this->reflection instanceof ReflectionFactoryInterface);
+        assert($this->createInvokable instanceof \Closure);
     }
 }
