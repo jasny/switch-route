@@ -252,30 +252,8 @@ CODE;
         $this->assertEquals($expected, $invoker->generateDefault());
     }
 
-    /**
-     * extend class and check if ExtendedInvoker protected methods is available
-     */
-    public function testMethodsVisibility()
+    public function testCreateInvokable()
     {
         self::assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
-        $extendedInvoker = new ExtendedInvoker();
-        $extendedInvoker->testMethodsVisibility();
-        self::assertTrue(true);
-    }
-}
-
-class ExtendedInvoker extends Invoker
-{
-    public function testMethodsVisibility()
-    {
-        $this->generateDefault();
-//        $this->generateInvocationMethod([], new ReflectionMethod(static::class, 'generateDefault'));
-        $this->generateInvocation(['controller' => __NAMESPACE__ . '\Generator\Dummy'], function () {
-        });
-        $this->assertInvokable([DummyController::class, 'defaultAction']);
-        $this->generateInvocationArgs(new ReflectionFunction('time'), function () {
-        });
-        assert($this->reflection instanceof ReflectionFactoryInterface);
-        assert($this->createInvokable instanceof \Closure);
     }
 }

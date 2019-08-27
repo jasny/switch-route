@@ -167,45 +167,17 @@ class GeneratorTest extends TestCase
         $generator->generate('foo', $path, $getRoutes, true);
     }
 
-    /**
-     * extend class and check if Generator protected methods is available
-     */
-    public function testMethodsVisibility()
-    {
-        $extendedGenerator = new ExtendedGenerator();
-        $extendedGenerator->testMethodsVisibility();
-        self::assertTrue(true);
-    }
-
     public function testStructureEndpoints()
     {
-        $extendedGenerator = new ExtendedGenerator();
-        $routes = [
-            'default' => 'default',
-            'GET /test' => 'test'
-        ];
-        $structuredEndpoints = $extendedGenerator->getStructuredEndpoints($routes);
+        $extendedGenerator = new class extends Generator {
+            public function getStructureEndpoints(array $routes) { return $this->structureEndpoints($routes); }
+        };
+        $structuredEndpoints = $extendedGenerator->getStructureEndpoints($this->getRoutes());
         /** @var Endpoint $testEndpoint */
-        $testEndpoint = array_shift($structuredEndpoints['test']);
-        self::assertSame('/test', $testEndpoint->getPath());
+        $testEndpoint = array_shift($structuredEndpoints['users']);
+        self::assertSame('/users', $testEndpoint->getPath());
         self::assertTrue(in_array('GET', $testEndpoint->getAllowedMethods()));
-        self::assertSame(1, count($testEndpoint->getAllowedMethods()));
-    }
-}
-
-class ExtendedGenerator extends Generator
-{
-    public function testMethodsVisibility()
-    {
-        $this->tryFs(function () {
-        }, []);
-        $this->scriptExists('tmp/generated/routes.php');
-        $this->structureEndpoints([]);
-        $this->splitPath('path');
-    }
-
-    public function getStructuredEndpoints(array $routes)
-    {
-        return $this->structureEndpoints($routes);
+        self::assertTrue(in_array('POST', $testEndpoint->getAllowedMethods()));
+        self::assertSame(2, count($testEndpoint->getAllowedMethods()));
     }
 }

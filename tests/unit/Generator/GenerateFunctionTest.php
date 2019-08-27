@@ -141,19 +141,15 @@ class GenerateFunctionTest extends TestCase
         $generate('', $routes, $structure);
     }
 
-    /**
-     * extend class and check if GenerateFunction protected methods is available
-     */
-    public function testMethodsVisibility()
-    {
-        $extendedGenerateFunction = new ExtendedGenerateFunction();
-        $extendedGenerateFunction->testMethodsVisibility();
-        self::assertTrue(true);
-    }
-
     public function testGenArg()
     {
-        $extendedGenerateFunction = new ExtendedGenerateFunction();
+        $extendedGenerateFunction = new class extends GenerateFunction
+        {
+            public function getGenArg(array $vars, ?string $name, ?string $type = null, $default = null): string
+            {
+                return $this->genArg($vars, $name, $type, $default);
+            }
+        };
         self::assertEquals(
             '["id" => $segments[1], "test" => $segments[1]]',
             $extendedGenerateFunction->getGenArg(['id' => 1, 'test' => true], null)
@@ -166,31 +162,5 @@ class GenerateFunctionTest extends TestCase
             '$segments[1]',
             $extendedGenerateFunction->getGenArg(['id' => 1, 'test' => true], 'id')
         );
-    }
-}
-
-class ExtendedGenerateFunction extends GenerateFunction
-{
-    public function testMethodsVisibility()
-    {
-        $this->genArg([], null);
-        $this->generateDefault(null);
-        $this->generateEndpoint(new Endpoint('/*'));
-        $this->generateNs(Endpoint::class);
-        $this->generateRoute('path', ['controller' => __NAMESPACE__ . '\Dummy'], []); // I can't write DummyController::class
-        $this->generateSwitch([]);
-        assert($this->invoker instanceof InvokerInterface);
-    }
-
-    public function getGenArg(array $vars, ?string $name, ?string $type = null, $default = null): string
-    {
-        return $this->genArg($vars, $name, $type, $default);
-    }
-}
-
-class DummyController
-{
-    public function defaultAction()
-    {
     }
 }

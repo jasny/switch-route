@@ -97,28 +97,4 @@ class GenerateInvokeMiddlewareTest extends TestCase
 
         $generate('', $routes, $structure);
     }
-
-    /**
-     * extend class and check if ExtendedGenerateInvokeMiddleware protected methods is available
-     */
-    public function testMethodsVisibility()
-    {
-        $extendedGenerateInvokeMiddleware = new ExtendedGenerateInvokeMiddleware();
-        $extendedGenerateInvokeMiddleware->testMethodsVisibility();
-        self::assertTrue(true);
-    }
-}
-
-class ExtendedGenerateInvokeMiddleware extends GenerateInvokeMiddleware
-{
-    public function testMethodsVisibility()
-    {
-        $this->groupRoutes([]);
-        $this->generateSwitchFromRoutes([]);
-        $this->generateEndpoint(new Endpoint('/*'));
-        $this->generateNs(Endpoint::class);
-        $this->generateRoute('path', ['controller' => __NAMESPACE__ . '\Dummy'], []); // I can't write DummyController::class
-        $this->generateSwitch([]);
-        assert($this->invoker instanceof InvokerInterface);
-    }
 }
