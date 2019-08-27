@@ -2,12 +2,16 @@
 
 namespace Jasny\SwitchRoute\Tests;
 
+use Jasny\ReflectionFactory\ReflectionFactoryInterface;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\Generator\GenerateRouteMiddleware;
+use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\InvokerInterface;
+use ReflectionFunctionAbstract;
+use ReflectionMethod;
 
 trait ExtendedClassesTrait
 {
@@ -15,6 +19,7 @@ trait ExtendedClassesTrait
     private $extendedGenerateFunction;
     private $extendedGenerateInvokeMiddleware;
     private $extendedGenerateRouteMiddleware;
+    private $extendedInvoker;
 
     private function initExtendedGenerator()
     {
@@ -153,6 +158,41 @@ trait ExtendedClassesTrait
             public function callGenerateEndpoint(Endpoint $endpoint): string
             {
                 return $this->generateEndpoint($endpoint);
+            }
+        };
+    }
+
+    private function initExtendedInvoker() {
+        if (null !== $this->extendedInvoker) return;
+        $this->extendedInvoker = new class extends Invoker {
+            public function callGenerateInvocationArgs(ReflectionFunctionAbstract $reflection, callable $genArg): string
+            {
+                return $this->generateInvocationArgs($reflection, $genArg);
+            }
+
+            public function callGenerateInvocationMethod(array $invokable, ReflectionMethod $reflection, string $new = '(new \\%s)'): string
+            {
+                return $this->generateInvocationMethod($invokable, $reflection, $new);
+            }
+
+            public function callAssertInvokable($invokable): void
+            {
+                $this->assertInvokable($invokable);
+            }
+
+            public function callGetReflection($invokable): ReflectionFunctionAbstract
+            {
+                return $this->getReflection($invokable);
+            }
+
+            public function getReflectionProperty(): ?ReflectionFactoryInterface
+            {
+                return $this->reflection;
+            }
+
+            public function getCreateInvokableProperty()
+            {
+                return $this->createInvokable;
             }
         };
     }

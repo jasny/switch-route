@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests;
 
 use BadMethodCallException;
+use Closure;
 use Jasny\ReflectionFactory\ReflectionFactory;
-use Jasny\ReflectionFactory\ReflectionFactoryInterface;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\SwitchRoute\Tests\Generator\DummyController;
 use Jasny\TestHelper;
 use LogicException;
 use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
@@ -24,6 +23,7 @@ use ReflectionParameter;
 class InvokerTest extends TestCase
 {
     use TestHelper;
+    use ExtendedClassesTrait;
 
     /**
      * Create reflection factory that will return a ReflectionMethod.
@@ -255,5 +255,56 @@ CODE;
     public function testCreateInvokable()
     {
         self::assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
+    }
+
+    /** test Invoker protected members */
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->initExtendedInvoker();
+    }
+
+    public function testGenerateInvocationArgs()
+    {
+        $reflection = new ReflectionFunction('time');
+        $genArg = function () {
+        };
+        self::assertEmpty($this->extendedInvoker->callGenerateInvocationArgs($reflection, $genArg));
+    }
+
+    public function testGenerateInvocationMethod()
+    {
+        $invokable = ['DateTime', 'format'];
+        $reflection = new ReflectionMethod('DateTime', 'format');
+        $new = '(new \\%s)';
+        self::assertSame('(new \DateTime)->format', $this->extendedInvoker->callGenerateInvocationMethod($invokable, $reflection, $new));
+    }
+
+    public function testAssertInvokable()
+    {
+        $invokable = ['DateTime', 'format'];
+        self::assertNull($this->extendedInvoker->callAssertInvokable($invokable));
+    }
+
+    public function testGetReflection()
+    {
+        $invokable = ['DateTime', 'format'];
+        $reflection = $this->extendedInvoker->callGetReflection($invokable);
+        self::assertInstanceOf(ReflectionMethod::class, $reflection);
+        self::assertTrue(isset($reflection->name));
+        self::assertSame('format', $reflection->name);
+        self::assertTrue(isset($reflection->class));
+        self::assertSame('DateTime', $reflection->class);
+    }
+
+    public function testReflectionProperty()
+    {
+        self::assertInstanceOf(ReflectionFactory::class, $this->extendedInvoker->getReflectionProperty());
+    }
+
+    public function testCreateInvokableProperty()
+    {
+        self::assertInstanceOf(Closure::class, $this->extendedInvoker->getCreateInvokableProperty());
     }
 }
