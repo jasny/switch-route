@@ -6,6 +6,7 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\NotFoundException;
 use Jasny\SwitchRoute\NotFoundMiddleware;
+use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -18,6 +19,8 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class NotFoundMiddlewareTest extends TestCase
 {
+    use ExtendedClassesTrait;
+
     public function testFound()
     {
         $request = $this->createMock(ServerRequestInterface::class);
@@ -103,5 +106,29 @@ class NotFoundMiddlewareTest extends TestCase
         $result = $middleware->process($request, $handler);
 
         $this->assertSame($response, $result);
+    }
+
+    /** test NotFoundMiddleware protected members */
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $responseFactory = $this->createMock(ResponseFactoryInterface::class);
+        $responseFactory->expects($this->any())->method('createResponse')->with($this->anything())->willReturn(new Response());
+        $this->initExtendedNotFoundMiddleware($responseFactory);
+    }
+
+    public function testProtectedNotFound()
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects($this->once())->method('getAttribute')
+            ->with('route:allowed_methods')
+            ->willReturn(['GET', 'POST']);
+        self::assertInstanceOf(ResponseInterface::class, $this->extendedNotFoundMiddleware->callNotFound($request));
+    }
+
+    public function testCreateInvokableProperty()
+    {
+        self::assertInstanceOf(ResponseFactoryInterface::class, $this->extendedNotFoundMiddleware->getCreateInvokableProperty());
     }
 }

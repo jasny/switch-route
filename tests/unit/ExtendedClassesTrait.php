@@ -10,6 +10,10 @@ use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\Generator\GenerateRouteMiddleware;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\InvokerInterface;
+use Jasny\SwitchRoute\NotFoundMiddleware;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 
@@ -20,6 +24,7 @@ trait ExtendedClassesTrait
     private $extendedGenerateInvokeMiddleware;
     private $extendedGenerateRouteMiddleware;
     private $extendedInvoker;
+    private $extendedNotFoundMiddleware;
 
     private function initExtendedGenerator()
     {
@@ -132,9 +137,11 @@ trait ExtendedClassesTrait
         };
     }
 
-    private function initExtendedGenerateRouteMiddleware() {
+    private function initExtendedGenerateRouteMiddleware()
+    {
         if (null !== $this->extendedGenerateRouteMiddleware) return;
-        $this->extendedGenerateRouteMiddleware = new class extends GenerateRouteMiddleware {
+        $this->extendedGenerateRouteMiddleware = new class extends GenerateRouteMiddleware
+        {
             public function callGenerateNs(string $class): array
             {
                 return $this->generateNs($class);
@@ -162,9 +169,11 @@ trait ExtendedClassesTrait
         };
     }
 
-    private function initExtendedInvoker() {
+    private function initExtendedInvoker()
+    {
         if (null !== $this->extendedInvoker) return;
-        $this->extendedInvoker = new class extends Invoker {
+        $this->extendedInvoker = new class extends Invoker
+        {
             public function callGenerateInvocationArgs(ReflectionFunctionAbstract $reflection, callable $genArg): string
             {
                 return $this->generateInvocationArgs($reflection, $genArg);
@@ -193,6 +202,23 @@ trait ExtendedClassesTrait
             public function getCreateInvokableProperty()
             {
                 return $this->createInvokable;
+            }
+        };
+    }
+
+    private function initExtendedNotFoundMiddleware(ResponseFactoryInterface $responseFactory)
+    {
+        if (null !== $this->extendedNotFoundMiddleware) return;
+        $this->extendedNotFoundMiddleware = new class($responseFactory) extends NotFoundMiddleware
+        {
+            public function callNotFound(ServerRequestInterface $request): ResponseInterface
+            {
+                return $this->notFound($request);
+            }
+
+            public function getCreateInvokableProperty(): ResponseFactoryInterface
+            {
+                return $this->responseFactory;
             }
         };
     }
