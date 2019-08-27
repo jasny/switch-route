@@ -167,17 +167,61 @@ class GeneratorTest extends TestCase
         $generator->generate('foo', $path, $getRoutes, true);
     }
 
+    /** test Generator protected members */
+
     public function testStructureEndpoints()
     {
-        $extendedGenerator = new class extends Generator {
-            public function getStructureEndpoints(array $routes) { return $this->structureEndpoints($routes); }
-        };
-        $structuredEndpoints = $extendedGenerator->getStructureEndpoints($this->getRoutes());
+        $structuredEndpoints = $this->getExtendedGenerator()->callStructureEndpoints($this->getRoutes());
         /** @var Endpoint $testEndpoint */
         $testEndpoint = array_shift($structuredEndpoints['users']);
         self::assertSame('/users', $testEndpoint->getPath());
         self::assertTrue(in_array('GET', $testEndpoint->getAllowedMethods()));
         self::assertTrue(in_array('POST', $testEndpoint->getAllowedMethods()));
         self::assertSame(2, count($testEndpoint->getAllowedMethods()));
+    }
+
+    public function testSplitPath()
+    {
+        $splitPath = $this->getExtendedGenerator()->callSplitPath('/users/*/display');
+        self::assertEquals([['users', '*', 'display'], []], $splitPath);
+    }
+
+    public function testScriptExists()
+    {
+        $scriptExists = $this->getExtendedGenerator()->callScriptExists('routes.php');
+        self::assertFalse($scriptExists);
+        /** @todo need check existing */
+    }
+
+    public function testTryFs()
+    {
+        $tryFsResult = $this->getExtendedGenerator()->callTryFs('disk_free_space', '.');
+        self::assertIsFloat($tryFsResult);
+    }
+
+    private function getExtendedGenerator()
+    {
+        return new class extends Generator
+        {
+            public function callStructureEndpoints(array $routes): array
+            {
+                return $this->structureEndpoints($routes);
+            }
+
+            public function callSplitPath(string $path): array
+            {
+                return $this->splitPath($path);
+            }
+
+            public function callScriptExists(string $file): bool
+            {
+                return $this->scriptExists($file);
+            }
+
+            public function callTryFs(callable $fn, ...$args)
+            {
+                return $this->tryFs($fn, ...$args);
+            }
+        };
     }
 }
