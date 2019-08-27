@@ -9,6 +9,27 @@
         "text": "infection.log"
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        "IncrementInteger": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::generate::56",
+                "Jasny\\SwitchRoute\\Generator::structureEndpoints::125"
+            ]
+        },
+        "DecrementInteger": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::generate::56"
+            ]
+        },
+        "TrueValue": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::generate::56"
+            ]
+        },
+        "FunctionCallRemoval": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::tryFs::74"
+            ]
+        }
     }
 }

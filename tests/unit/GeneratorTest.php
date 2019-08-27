@@ -21,6 +21,7 @@ class GeneratorTest extends TestCase
 {
     use TestHelper;
     use RoutesTrait;
+    use ExtendedClassesTrait;
 
     /**
      * @var vfsStreamDirectory
@@ -30,6 +31,7 @@ class GeneratorTest extends TestCase
     public function setUp(): void
     {
         $this->root = vfsStream::setup('tmp');
+        $this->initExtendedGenerator();
     }
 
     public function testGenerate()
@@ -171,7 +173,7 @@ class GeneratorTest extends TestCase
 
     public function testStructureEndpoints()
     {
-        $structuredEndpoints = $this->getExtendedGenerator()->callStructureEndpoints($this->getRoutes());
+        $structuredEndpoints = $this->extendedGenerator->callStructureEndpoints($this->getRoutes());
         /** @var Endpoint $testEndpoint */
         $testEndpoint = array_shift($structuredEndpoints['users']);
         self::assertSame('/users', $testEndpoint->getPath());
@@ -182,46 +184,20 @@ class GeneratorTest extends TestCase
 
     public function testSplitPath()
     {
-        $splitPath = $this->getExtendedGenerator()->callSplitPath('/users/*/display');
+        $splitPath = $this->extendedGenerator->callSplitPath('/users/*/display');
         self::assertEquals([['users', '*', 'display'], []], $splitPath);
     }
 
     public function testScriptExists()
     {
-        $scriptExists = $this->getExtendedGenerator()->callScriptExists('routes.php');
+        $scriptExists = $this->extendedGenerator->callScriptExists('routes.php');
         self::assertFalse($scriptExists);
         /** @todo need check existing */
     }
 
     public function testTryFs()
     {
-        $tryFsResult = $this->getExtendedGenerator()->callTryFs('disk_free_space', '.');
+        $tryFsResult = $this->extendedGenerator->callTryFs('disk_free_space', '.');
         self::assertIsFloat($tryFsResult);
-    }
-
-    private function getExtendedGenerator()
-    {
-        return new class extends Generator
-        {
-            public function callStructureEndpoints(array $routes): array
-            {
-                return $this->structureEndpoints($routes);
-            }
-
-            public function callSplitPath(string $path): array
-            {
-                return $this->splitPath($path);
-            }
-
-            public function callScriptExists(string $file): bool
-            {
-                return $this->scriptExists($file);
-            }
-
-            public function callTryFs(callable $fn, ...$args)
-            {
-                return $this->tryFs($fn, ...$args);
-            }
-        };
     }
 }
