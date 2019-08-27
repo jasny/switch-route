@@ -150,6 +150,23 @@ class GenerateFunctionTest extends TestCase
         $extendedGenerateFunction->testMethodsVisibility();
         self::assertTrue(true);
     }
+
+    public function testGenArg()
+    {
+        $extendedGenerateFunction = new ExtendedGenerateFunction();
+        self::assertEquals(
+            '["id" => $segments[1], "test" => $segments[1]]',
+            $extendedGenerateFunction->getGenArg(['id' => 1, 'test' => true], null)
+        );
+        self::assertEquals(
+            'NULL',
+            $extendedGenerateFunction->getGenArg(['id' => 1, 'test' => true], 'null')
+        );
+        self::assertEquals(
+            '$segments[1]',
+            $extendedGenerateFunction->getGenArg(['id' => 1, 'test' => true], 'id')
+        );
+    }
 }
 
 class ExtendedGenerateFunction extends GenerateFunction
@@ -163,6 +180,11 @@ class ExtendedGenerateFunction extends GenerateFunction
         $this->generateRoute('path', ['controller' => __NAMESPACE__ . '\Dummy'], []); // I can't write DummyController::class
         $this->generateSwitch([]);
         assert($this->invoker instanceof InvokerInterface);
+    }
+
+    public function getGenArg(array $vars, ?string $name, ?string $type = null, $default = null): string
+    {
+        return $this->genArg($vars, $name, $type, $default);
     }
 }
 

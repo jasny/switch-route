@@ -9,6 +9,7 @@ use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
+use Jasny\SwitchRoute\InvokerInterface;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -95,5 +96,29 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $generate = new GenerateInvokeMiddleware($invoker);
 
         $generate('', $routes, $structure);
+    }
+
+    /**
+     * extend class and check if ExtendedGenerateInvokeMiddleware protected methods is available
+     */
+    public function testMethodsVisibility()
+    {
+        $extendedGenerateInvokeMiddleware = new ExtendedGenerateInvokeMiddleware();
+        $extendedGenerateInvokeMiddleware->testMethodsVisibility();
+        self::assertTrue(true);
+    }
+}
+
+class ExtendedGenerateInvokeMiddleware extends GenerateInvokeMiddleware
+{
+    public function testMethodsVisibility()
+    {
+        $this->groupRoutes([]);
+        $this->generateSwitchFromRoutes([]);
+        $this->generateEndpoint(new Endpoint('/*'));
+        $this->generateNs(Endpoint::class);
+        $this->generateRoute('path', ['controller' => __NAMESPACE__ . '\Dummy'], []); // I can't write DummyController::class
+        $this->generateSwitch([]);
+        assert($this->invoker instanceof InvokerInterface);
     }
 }
