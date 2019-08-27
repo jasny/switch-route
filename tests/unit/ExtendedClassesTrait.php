@@ -6,6 +6,7 @@ use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
+use Jasny\SwitchRoute\Generator\GenerateRouteMiddleware;
 use Jasny\SwitchRoute\InvokerInterface;
 
 trait ExtendedClassesTrait
@@ -13,6 +14,7 @@ trait ExtendedClassesTrait
     private $extendedGenerator;
     private $extendedGenerateFunction;
     private $extendedGenerateInvokeMiddleware;
+    private $extendedGenerateRouteMiddleware;
 
     private function initExtendedGenerator()
     {
@@ -121,6 +123,36 @@ trait ExtendedClassesTrait
             public function getInvoker(): InvokerInterface
             {
                 return $this->invoker;
+            }
+        };
+    }
+
+    private function initExtendedGenerateRouteMiddleware() {
+        if (null !== $this->extendedGenerateRouteMiddleware) return;
+        $this->extendedGenerateRouteMiddleware = new class extends GenerateRouteMiddleware {
+            public function callGenerateNs(string $class): array
+            {
+                return $this->generateNs($class);
+            }
+
+            public function callGenerateDefault(?Endpoint $endpoint): string
+            {
+                return $this->generateDefault($endpoint);
+            }
+
+            public function callGenerateSwitch(array $structure, int $level = 0): string
+            {
+                return $this->generateSwitch($structure, $level);
+            }
+
+            public function callGenerateRoute(string $key, array $route, array $vars): string
+            {
+                return $this->generateRoute($key, $route, $vars);
+            }
+
+            public function callGenerateEndpoint(Endpoint $endpoint): string
+            {
+                return $this->generateEndpoint($endpoint);
             }
         };
     }
