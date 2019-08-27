@@ -5,12 +5,14 @@ namespace Jasny\SwitchRoute\Tests;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
+use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvokerInterface;
 
 trait ExtendedClassesTrait
 {
     private $extendedGenerator;
     private $extendedGenerateFunction;
+    private $extendedGenerateInvokeMiddleware;
 
     private function initExtendedGenerator()
     {
@@ -72,6 +74,48 @@ trait ExtendedClassesTrait
             public function callGenerateEndpoint(Endpoint $endpoint): string
             {
                 return $this->generateEndpoint($endpoint);
+            }
+
+            public function getInvoker(): InvokerInterface
+            {
+                return $this->invoker;
+            }
+        };
+    }
+
+    private function initExtendedGenerateInvokeMiddleware()
+    {
+        if (null !== $this->extendedGenerateInvokeMiddleware) return;
+        $this->extendedGenerateInvokeMiddleware = new class extends GenerateInvokeMiddleware
+        {
+            public function callGenerateNs(string $class): array
+            {
+                return $this->generateNs($class);
+            }
+
+            public function callGenerateSwitch(array $structure, int $level = 0): string
+            {
+                return $this->generateSwitch($structure, $level);
+            }
+
+            public function callGenerateRoute(string $key, array $route, array $vars): string
+            {
+                return $this->generateRoute($key, $route, $vars);
+            }
+
+            public function callGenerateEndpoint(Endpoint $endpoint): string
+            {
+                return $this->generateEndpoint($endpoint);
+            }
+
+            public function callGroupRoutes(array $routes): array
+            {
+                return $this->groupRoutes($routes);
+            }
+
+            public function callGenerateSwitchFromRoutes(array $routes): string
+            {
+                return $this->generateSwitchFromRoutes($routes);
             }
 
             public function getInvoker(): InvokerInterface

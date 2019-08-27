@@ -30,6 +30,11 @@
             "ignore": [
                 "Jasny\\SwitchRoute\\Generator::tryFs::74"
             ]
+        },
+        "Continue_": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::structureEndpoints::118"
+            ]
         }
     }
 }
