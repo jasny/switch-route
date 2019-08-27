@@ -127,6 +127,7 @@ class GenerateFunctionTest extends TestCase
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Invalid route for 'GET /*'. Can't call info()");
+        $this->expectExceptionCode(0);
 
         $routes = ['GET /{id}' => ['controller' => 'info']];
         $structure = ["\0" => (new Endpoint('/*'))->withRoute('GET', ['controller' => 'info'], [])];
@@ -155,7 +156,7 @@ class ExtendedGenerateFunction extends GenerateFunction
 {
     public function testMethodsVisibility()
     {
-        $this->genArg([], 'null'); // I can't pass null
+        $this->genArg([], null);
         $this->generateDefault(null);
         $this->generateEndpoint(new Endpoint('/*'));
         $this->generateNs(Endpoint::class);

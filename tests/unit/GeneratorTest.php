@@ -45,10 +45,11 @@ class GeneratorTest extends TestCase
 
         $generator = new Generator($generate);
         $generator->generate('FortyTwo', $path, $getRoutes, false);
-        self::assertTrue(file_exists($path));
 
         $this->assertFileExists($path);
         $this->assertEquals($script, file_get_contents($path));
+//        self::assertEquals(0666, fileperms($path) & 0777);
+//        self::assertEquals(0755, fileperms('/tmp/generated') & 0777);
     }
 
     public function testGenerateExistingScript()
@@ -169,7 +170,8 @@ class GeneratorTest extends TestCase
     /**
      * extend class and check if Generator protected methods is available
      */
-    public function testMethodsVisibility() {
+    public function testMethodsVisibility()
+    {
         $extendedGenerator = new ExtendedGenerator();
         $extendedGenerator->testMethodsVisibility();
         self::assertTrue(true);
@@ -193,8 +195,10 @@ class GeneratorTest extends TestCase
 
 class ExtendedGenerator extends Generator
 {
-    public function testMethodsVisibility() {
-        $this->tryFs(function () {}, []);
+    public function testMethodsVisibility()
+    {
+        $this->tryFs(function () {
+        }, []);
         $this->scriptExists('tmp/generated/routes.php');
         $this->structureEndpoints([]);
         $this->splitPath('path');
