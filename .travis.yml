@@ -23,6 +23,7 @@ branches:
 
 before_install:
   - composer self-update
+  - test "$TRAVIS_PHP_VERSION" != "nighty" || COMPOSER_FLAGS="$COMPOSER_FLAGS --ignore-platform-reqs"
 
 install:
   - composer install --prefer-source $COMPOSER_FLAGS
