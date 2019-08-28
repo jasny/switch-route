@@ -20,10 +20,11 @@ cache:
 branches:
   only:
     - master
+    - travis
 
 before_install:
   - composer self-update
-  - test "$TRAVIS_PHP_VERSION" != "nighty" || export COMPOSER_FLAGS="$COMPOSER_FLAGS --ignore-platform-reqs"
+  - test "$TRAVIS_PHP_VERSION" != "nightly" || export COMPOSER_FLAGS="$COMPOSER_FLAGS --ignore-platform-reqs"
 
 install:
   - composer install --prefer-source $COMPOSER_FLAGS
