@@ -14,7 +14,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionFunction;
 use ReflectionMethod;
+use ReflectionNamedType;
 use ReflectionParameter;
+use ReflectionType;
 
 /**
  * @covers \Jasny\SwitchRoute\Invoker
@@ -74,21 +76,30 @@ class InvokerTest extends TestCase
      */
     public function testWithArguments($controller, $action, $invokable, $expected)
     {
-        $expectedCode = sprintf($expected, "\$var['id'] ?? NULL, \$var['good'] ?? 'ok'");
+        $expectedCode = sprintf($expected, "\$var['id'] ?? NULL, \$var['some'] ?? NULL, \$var['good'] ?? 'ok'");
 
+        $mixedType = $this->createMock(ReflectionType::class);
+        $stringType = $this->createConfiguredMock(ReflectionNamedType::class, ['getName' => 'string']);
         $parameters = [
-            $this->createConfiguredMock(ReflectionParameter::class, ['getName' => 'id', 'isOptional' => false]),
             $this->createConfiguredMock(
                 ReflectionParameter::class,
-                ['getName' => 'good', 'getType' => 'string', 'isOptional' => true, 'getDefaultValue' => 'ok']
+                ['getName' => 'id', 'getType' => null, 'isOptional' => false]
+            ),
+            $this->createConfiguredMock(
+                ReflectionParameter::class,
+                ['getName' => 'some', 'getType' => $mixedType, 'isOptional' => false]
+            ),
+            $this->createConfiguredMock(
+                ReflectionParameter::class,
+                ['getName' => 'good', 'getType' => $stringType, 'isOptional' => true, 'getDefaultValue' => 'ok']
             ),
         ];
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, $parameters);
 
-        $genArg = $this->createCallbackMock($this->exactly(2), function (InvocationMocker $invoke) {
+        $genArg = $this->createCallbackMock($this->exactly(3), function (InvocationMocker $invoke) {
             $invoke
-                ->withConsecutive(['id', null], ['good', 'string', 'ok'])
-                ->willReturnOnConsecutiveCalls("\$var['id'] ?? NULL", "\$var['good'] ?? 'ok'");
+                ->withConsecutive(['id', null, null], ['some', null, null], ['good', 'string', 'ok'])
+                ->willReturnOnConsecutiveCalls("\$var['id'] ?? NULL", "\$var['some'] ?? NULL", "\$var['good'] ?? 'ok'");
         });
 
         $invoker = new Invoker(null, $reflectionFactory);

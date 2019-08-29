@@ -13,6 +13,7 @@ use ReflectionException;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use ReflectionNamedType;
 
 /**
  * Invoke the action or script specified by the route.
@@ -104,7 +105,8 @@ class Invoker implements InvokerInterface
 
         foreach ($reflection->getParameters() as $param) {
             $default = $param->isOptional() ? $param->getDefaultValue() : null;
-            $args[] = $genArg($param->getName(), $param->getType(), $default);
+            $type = $param->getType() instanceof ReflectionNamedType ? $param->getType()->getName() : null;
+            $args[] = $genArg($param->getName(), $type, $default);
         }
 
         return join(', ', $args);
