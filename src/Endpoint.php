@@ -97,6 +97,8 @@ final class Endpoint
      */
     public function getVars(string $method): array
     {
+        $method = strtoupper($method);
+
         if (!isset($this->vars[$method])) {
             throw new OutOfBoundsException("Method '$method' not available for endpoint '{$this->path}'");
         }
