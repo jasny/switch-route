@@ -9,8 +9,6 @@ use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\SwitchRoute\InvokerInterface;
-use Jasny\SwitchRoute\Tests\ExtendedClassesTrait;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
@@ -22,7 +20,6 @@ use ReflectionException;
 class GenerateFunctionTest extends TestCase
 {
     use RoutesTrait;
-    use ExtendedClassesTrait;
 
     protected function getRouteArgs()
     {
@@ -141,79 +138,5 @@ class GenerateFunctionTest extends TestCase
         $generate = new GenerateFunction($invoker);
 
         $generate('', $routes, $structure);
-    }
-
-    /** test GenerateFunction protected members */
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->initExtendedGenerateFunction();
-    }
-
-    public function testGenerateNs()
-    {
-        self::assertEquals(['', 'Dummy'], $this->extendedGenerateFunction->callGenerateNs('Dummy'));
-        /**
-         * @todo self::assertEquals([...], $this->extendedGenerateFunction->callGenerateNs(SomeController::class));
-         */
-    }
-
-    public function testGenArg()
-    {
-        self::assertEquals(
-            '["id" => $segments[1], "test" => $segments[1]]',
-            $this->extendedGenerateFunction->callGenArg(['id' => 1, 'test' => true], null)
-        );
-        self::assertEquals(
-            'NULL',
-            $this->extendedGenerateFunction->callGenArg(['id' => 1, 'test' => true], 'null')
-        );
-        self::assertEquals(
-            '$segments[1]',
-            $this->extendedGenerateFunction->callGenArg(['id' => 1, 'test' => true], 'id')
-        );
-    }
-
-    public function testGenerateDefault()
-    {
-        self::assertNotEmpty($this->extendedGenerateFunction->callGenerateDefault(null));
-    }
-
-    public function testGenerateSwitch()
-    {
-        self::assertEquals('switch ($segments[0] ?? "\0") {' . PHP_EOL . '}', $this->extendedGenerateFunction->callGenerateSwitch([]));
-        /**
-         * controller missed
-         * @todo self::assertEquals('...', $this->extendedGenerateFunction->callGenerateSwitch($this->getStructure(), 1));
-         */
-    }
-
-    public function testGenerateRoute()
-    {
-        /**
-         * controller missed
-         * @todo $route = $this->extendedGenerateFunction->callGenerateRoute('POST /path', ['controller' => 'Dummy'], [])
-         */
-        try {
-            $this->extendedGenerateFunction->callGenerateRoute('POST /path', ['controller' => 'Dummy'], [], null);
-        } catch (InvalidRouteException $exception) {
-            self::assertTrue(true);
-        } catch (\Exception $exception) {
-            self::assertTrue(false, $exception->getMessage());
-        }
-    }
-
-    public function testGenerateEndpoint()
-    {
-        self::assertSame(
-            '$allowedMethods = [];' . PHP_EOL . 'switch ($method) {' . PHP_EOL . '}',
-            $this->extendedGenerateFunction->callGenerateEndpoint(new Endpoint('/path'))
-        );
-    }
-
-    public function testInvoker()
-    {
-        self::assertInstanceOf(InvokerInterface::class, $this->extendedGenerateFunction->getInvoker());
     }
 }

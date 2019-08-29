@@ -47,8 +47,8 @@
         "test": [
             "phpstan analyse",
             "phpunit",
-            "phpcs -p src",
-            "infection --min-msi=85 --min-covered-msi=85 --log-verbosity=all"
+            "infection --min-msi=85 --min-covered-msi=85 --log-verbosity=all",
+            "phpcs -p src"
         ]
     },
     "config": {

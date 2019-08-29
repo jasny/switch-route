@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
-use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\TestHelper;
@@ -21,7 +20,6 @@ class GeneratorTest extends TestCase
 {
     use TestHelper;
     use RoutesTrait;
-    use ExtendedClassesTrait;
 
     /**
      * @var vfsStreamDirectory
@@ -31,7 +29,6 @@ class GeneratorTest extends TestCase
     public function setUp(): void
     {
         $this->root = vfsStream::setup('tmp');
-        $this->initExtendedGenerator();
     }
 
     public function testGenerate()
@@ -50,8 +47,6 @@ class GeneratorTest extends TestCase
 
         $this->assertFileExists($path);
         $this->assertEquals($script, file_get_contents($path));
-//        self::assertEquals(0666, fileperms($path) & 0777);
-//        self::assertEquals(0755, fileperms('/tmp/generated') & 0777);
     }
 
     public function testGenerateExistingScript()
@@ -167,37 +162,5 @@ class GeneratorTest extends TestCase
 
         $generator = new Generator($generate);
         $generator->generate('foo', $path, $getRoutes, true);
-    }
-
-    /** test Generator protected members */
-
-    public function testStructureEndpoints()
-    {
-        $structuredEndpoints = $this->extendedGenerator->callStructureEndpoints($this->getRoutes());
-        /** @var Endpoint $testEndpoint */
-        $testEndpoint = array_shift($structuredEndpoints['users']);
-        self::assertSame('/users', $testEndpoint->getPath());
-        self::assertTrue(in_array('GET', $testEndpoint->getAllowedMethods()));
-        self::assertTrue(in_array('POST', $testEndpoint->getAllowedMethods()));
-        self::assertSame(2, count($testEndpoint->getAllowedMethods()));
-    }
-
-    public function testSplitPath()
-    {
-        $splitPath = $this->extendedGenerator->callSplitPath('/users/*/display');
-        self::assertEquals([['users', '*', 'display'], []], $splitPath);
-    }
-
-    public function testScriptExists()
-    {
-        $scriptExists = $this->extendedGenerator->callScriptExists('routes.php');
-        self::assertFalse($scriptExists);
-        /** @todo need check existing */
-    }
-
-    public function testTryFs()
-    {
-        $tryFsResult = $this->extendedGenerator->callTryFs('disk_free_space', '.');
-        self::assertIsFloat($tryFsResult);
     }
 }

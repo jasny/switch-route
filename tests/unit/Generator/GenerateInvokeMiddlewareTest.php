@@ -9,8 +9,6 @@ use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\SwitchRoute\InvokerInterface;
-use Jasny\SwitchRoute\Tests\ExtendedClassesTrait;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -23,7 +21,6 @@ use ReflectionException;
 class GenerateInvokeMiddlewareTest extends TestCase
 {
     use RoutesTrait;
-    use ExtendedClassesTrait;
 
     protected function getRouteArgs()
     {
@@ -99,77 +96,5 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $generate = new GenerateInvokeMiddleware($invoker);
 
         $generate('', $routes, $structure);
-    }
-
-    /** test GenerateInvokeMiddleware protected members */
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->initExtendedGenerateInvokeMiddleware();
-    }
-
-    public function testGenerateNs()
-    {
-        self::assertEquals(['', 'Dummy'], $this->extendedGenerateInvokeMiddleware->callGenerateNs('Dummy'));
-        /**
-         * @todo self::assertEquals([...], $this->extendedGenerateInvokeMiddleware->callGenerateNs(SomeController::class));
-         */
-    }
-
-    public function testGenerateSwitch()
-    {
-        self::assertEquals('switch ($segments[0] ?? "\0") {' . PHP_EOL . '}', $this->extendedGenerateInvokeMiddleware->callGenerateSwitch([]));
-        /**
-         * controller missed
-         * @todo self::assertEquals('...', $this->extendedGenerateInvokeMiddleware->callGenerateSwitch($this->getStructure(), 1));
-         */
-    }
-
-    public function testGenerateRoute()
-    {
-        /**
-         * controller missed
-         * @todo $route = $this->extendedGenerateInvokeMiddleware->callGenerateRoute('POST /path', ['controller' => 'Dummy'], [])
-         */
-        try {
-            $this->extendedGenerateInvokeMiddleware->callGenerateRoute('POST /path', ['controller' => 'Dummy'], [], null);
-        } catch (InvalidRouteException $exception) {
-            self::assertTrue(true);
-        } catch (\Exception $exception) {
-            self::assertTrue(false, $exception->getMessage());
-        }
-    }
-
-    public function testGenerateEndpoint()
-    {
-        self::assertSame(
-            'switch ($method) {' . PHP_EOL . '}',
-            $this->extendedGenerateInvokeMiddleware->callGenerateEndpoint(new Endpoint('/path'))
-        );
-    }
-
-    public function testGroupRoutes()
-    {
-        self::assertSame(
-            [],
-            $this->extendedGenerateInvokeMiddleware->callGroupRoutes([])
-        );
-        /**
-         * @todo $this->extendedGenerateInvokeMiddleware->callGroupRoutes($this->getRoutes())
-         */
-    }
-
-    public function testGenerateSwitchFromRoutes()
-    {
-        self::assertNotEmpty($this->extendedGenerateInvokeMiddleware->callGenerateSwitchFromRoutes([]));
-        /**
-         * @todo $this->extendedGenerateInvokeMiddleware->callGenerateSwitchFromRoutes($this->getRoutes())
-         */
-    }
-
-    public function testInvoker()
-    {
-        self::assertInstanceOf(InvokerInterface::class, $this->extendedGenerateInvokeMiddleware->getInvoker());
     }
 }

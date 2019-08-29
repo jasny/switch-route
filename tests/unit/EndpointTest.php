@@ -67,10 +67,6 @@ class EndpointTest extends TestCase
             ->withRoute('POST', [], [])
             ->withRoute('PATCH', [], [])
             ->withRoute('', [], []);
-        /**
-         * getAllowedMethods must exclude empty methods
-         */
-        self::assertFalse(in_array('', $endpoint->getAllowedMethods()));
 
         $this->assertEquals(['GET', 'POST', 'PATCH'], $endpoint->getAllowedMethods());
     }
