@@ -263,6 +263,6 @@ CODE;
 
     public function testCreateInvokable()
     {
-        self::assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
+        $this->assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
     }
 }

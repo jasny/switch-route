@@ -33,15 +33,15 @@ class EndpointTest extends TestCase
          * what if I could pass something like 'anything'?
          */
         $newEndpoint = $endpoint->withRoute('get', ['action' => 'get-user'], ['id' => 1]);
-        self::assertEquals(['GET'], $newEndpoint->getAllowedMethods());
+        $this->assertEquals(['GET'], $newEndpoint->getAllowedMethods());
         try {
             $newEndpoint->getVars('get');
         } catch (Exception $exception) {
-            self::assertInstanceOf(OutOfBoundsException::class, $exception);
-            self::assertSame('Method \'get\' not available for endpoint \'/users/*\'', $exception->getMessage());
-            self::assertSame(0, $exception->getCode());
+            $this->assertInstanceOf(OutOfBoundsException::class, $exception);
+            $this->assertSame('Method \'get\' not available for endpoint \'/users/*\'', $exception->getMessage());
+            $this->assertSame(0, $exception->getCode());
         }
-        self::assertEquals(['id' => 1], $newEndpoint->getVars('GET'));
+        $this->assertEquals(['id' => 1], $newEndpoint->getVars('GET'));
         $this->assertEquals(['GET' => ['action' => 'get-user']], $newEndpoint->getRoutes());
 
         // Test immutability
