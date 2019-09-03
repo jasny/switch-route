@@ -70,7 +70,10 @@ class ExtendTest extends TestCase
         $invokable = ['DateTime', 'format'];
         $reflection = new ReflectionMethod('DateTime', 'format');
         $new = '(new \\%s)';
-        $this->assertSame('(new \DateTime)->format', $extendedInvoker->callGenerateInvocationMethod($invokable, $reflection, $new));
+        $this->assertSame(
+            '(new \DateTime)->format',
+            $extendedInvoker->callGenerateInvocationMethod($invokable, $reflection, $new)
+        );
 
         /** assertInvokable */
         $invokable = ['DateTime', 'format'];
@@ -97,7 +100,8 @@ class ExtendTest extends TestCase
     public function testExtendedNotFoundMiddleware()
     {
         $responseFactory = $this->createMock(ResponseFactoryInterface::class);
-        $responseFactory->expects($this->any())->method('createResponse')->with($this->anything())->willReturn(new Response());
+        $responseFactory->expects($this->any())->method('createResponse')->with($this->anything())
+            ->willReturn(new Response());
         $extendedNotFoundMiddleware = $this->initExtendedNotFoundMiddleware($responseFactory);
 
         /** notFound */
@@ -108,7 +112,10 @@ class ExtendTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $extendedNotFoundMiddleware->callNotFound($request));
 
         /** createInvokableProperty */
-        $this->assertInstanceOf(ResponseFactoryInterface::class, $extendedNotFoundMiddleware->getCreateInvokableProperty());
+        $this->assertInstanceOf(
+            ResponseFactoryInterface::class,
+            $extendedNotFoundMiddleware->getCreateInvokableProperty()
+        );
     }
 
     /**  */
@@ -138,7 +145,10 @@ class ExtendTest extends TestCase
         $this->assertNotEmpty($extendedGenerateFunction->callGenerateDefault(null));
 
         /** generateSwitch */
-        $this->assertEquals('switch ($segments[0] ?? "\0") {' . PHP_EOL . '}', $extendedGenerateFunction->callGenerateSwitch([]));
+        $this->assertEquals(
+            'switch ($segments[0] ?? "\0") {' . PHP_EOL . '}',
+            $extendedGenerateFunction->callGenerateSwitch([])
+        );
 
         /** generateRoute */
         try {
@@ -169,7 +179,10 @@ class ExtendTest extends TestCase
         $this->assertEquals(['', 'Dummy'], $extendedGenerateInvokeMiddleware->callGenerateNs('Dummy'));
 
         /** generateSwitch */
-        $this->assertEquals('switch ($segments[0] ?? "\0") {' . PHP_EOL . '}', $extendedGenerateInvokeMiddleware->callGenerateSwitch([]));
+        $this->assertEquals(
+            'switch ($segments[0] ?? "\0") {' . PHP_EOL . '}',
+            $extendedGenerateInvokeMiddleware->callGenerateSwitch([])
+        );
 
         /** generateRoute  */
         try {
@@ -210,7 +223,10 @@ class ExtendTest extends TestCase
         $this->assertNotEmpty($extendedGenerateRouteMiddleware->callGenerateDefault(null));
 
         /** generateSwitch */
-        $this->assertEquals('switch ($segments[0] ?? "\0") {' . PHP_EOL . '}', $extendedGenerateRouteMiddleware->callGenerateSwitch([]));
+        $this->assertEquals(
+            'switch ($segments[0] ?? "\0") {' . PHP_EOL . '}',
+            $extendedGenerateRouteMiddleware->callGenerateSwitch([])
+        );
 
         /** generateRoute */
         $this->assertSame(
@@ -220,7 +236,8 @@ class ExtendTest extends TestCase
 
         /** generateEndpoint */
         $this->assertSame(
-            '$request = $request->withAttribute(\'route:allowed_methods\', []);' . PHP_EOL . 'switch ($method) {' . PHP_EOL . '}',
+            '$request = $request->withAttribute(\'route:allowed_methods\', []);'
+                . PHP_EOL . 'switch ($method) {' . PHP_EOL . '}',
             $extendedGenerateRouteMiddleware->callGenerateEndpoint(new Endpoint('/path'))
         );
     }
@@ -373,8 +390,11 @@ class ExtendTest extends TestCase
                 return $this->generateInvocationArgs($reflection, $genArg);
             }
 
-            public function callGenerateInvocationMethod(array $invokable, ReflectionMethod $reflection, string $new = '(new \\%s)'): string
-            {
+            public function callGenerateInvocationMethod(
+                array $invokable,
+                ReflectionMethod $reflection,
+                string $new = '(new \\%s)'
+            ): string {
                 return $this->generateInvocationMethod($invokable, $reflection, $new);
             }
 

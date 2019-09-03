@@ -11,6 +11,10 @@ matrix:
     - php: 7.4snapshot
     - php: nightly
 
+env:
+  global:
+    secure: e2DT0hhIO/Jwo1DILB6y/yVS9hRUgds3zJs8KbZpQVLLOKixK6boCId2m1wPCoJHPnWTKOwNTMqb8XsMFBzdrMybKrmjk6Nptfv/i5r70yyCg0pCGlqmbTEuY/KkNpbF7Gyf1Xfuu9Q1+473kGF3jXB6/KlMb5mMLd7RpEVSJfceIc9vJZkcEszEVmxGwxLTe/8dZqlQPjnobOtAkSwdXKh+kI5mZmo8iCpigf+6vRA77kudmPgIllJeBRnN6o0DxIbnINZ6q7dAWpiG4fsrTZVe1ICDC/baQv3IGYgK2DccD3nk6kE4UkyP7HzSxTKVTW+aZ5IorKPNf0idy51tj89p7OSarM69pYsChbUIhcbTrrYcE0gg1J1AyUQzy2cdZ+NkvS+Ay1fea9ZFMMXBcJBGGVAL8XMX2fN7g4FZJbQh2a/NI3VHwFFMM6fZgmCwMtz2g30fDzCE24DInA3bcPMGmnAq6llU/nl1V9tm7BYCPorGA+Sv1Kd/ZslBxV0s2Ym5UYNpWQjN1jhXHJ1TGbWgzrK9/e0UDIZ/g7R4k/ZwR+T/+NAr8DzXokZLWnvQWv5rnMMUUez/cgTMQF4gOj5kjgA9H58FI9lAFlTGQtZQS669KsqILhZ95jTCffULvNWSuhOvfMrxrt1re5/mo50C7IIesH3LR0uM57KG2YM=
+
 sudo: false
 
 cache:

@@ -6,9 +6,17 @@
         ]
     },
     "logs": {
-        "text": "infection.log"
+        "text": "infection.log",
+        "badge": {
+            "branch": "master"
+        }
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        "FunctionCallRemoval": {
+            "ignore": [
+                "Jasny\\SwitchRoute\\Generator::tryFs"
+            ]
+        }
     }
 }

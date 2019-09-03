@@ -6,6 +6,7 @@ SwitchRoute
 [![Build Status](https://travis-ci.org/jasny/switch-route.svg?branch=master)](https://travis-ci.org/jasny/switch-route)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/jasny/switch-route/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/jasny/switch-route/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/jasny/switch-route/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jasny/switch-route/?branch=master)
+[![Infection MSI](https://badge.stryker-mutator.io/github.com/jasny/switch-route/master)](https://infection.github.io)
 [![Packagist Stable Version](https://img.shields.io/packagist/v/jasny/switch-route.svg)](https://packagist.org/packages/jasny/switch-route)
 [![Packagist License](https://img.shields.io/packagist/l/jasny/switch-route.svg)](https://packagist.org/packages/jasny/switch-route)
 

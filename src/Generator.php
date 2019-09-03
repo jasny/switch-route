@@ -65,7 +65,7 @@ class Generator
      * Try a file system function and throw a RuntimeException on failure.
      *
      * @param callable $fn
-     * @param mixed ...$args
+     * @param mixed    ...$args
      * @return mixed
      */
     protected function tryFs(callable $fn, ...$args)
@@ -120,11 +120,11 @@ class Generator
                 continue;
             }
 
-            if (!preg_match('~^\w+(?:\|\w+)*\s+/\S*$~', $key)) {
+            if (!preg_match('~^\s*\w+(?:\|\w+)*\s+/\S*\s*$~', $key)) {
                 throw new InvalidRouteException("Invalid routing key '$key': should be 'METHOD /path'");
             }
 
-            [$methods, $varPath] = preg_split('~\s++~', trim($key), 2);
+            [$methods, $varPath] = preg_split('~\s++~', trim($key));
             [$segments, $vars] = $this->splitPath($varPath);
 
             $pointer =& $structure;

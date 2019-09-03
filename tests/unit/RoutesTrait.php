@@ -11,7 +11,7 @@ trait RoutesTrait
     protected function getRoutes(): array
     {
         return [
-            'GET      /'                  => ['controller' => 'info'],
+            '  GET    /  '                => ['controller' => 'info'],
 
             'GET      /users'             => ['controller' => 'user', 'action' => 'list'],
             'POST     /users'             => ['controller' => 'user', 'action' => 'add'],
