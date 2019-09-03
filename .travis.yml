@@ -33,11 +33,15 @@ before_install:
 install:
   - composer install --prefer-source $COMPOSER_FLAGS
   - wget https://scrutinizer-ci.com/ocular.phar -O "$HOME/ocular.phar"
-  
-script:
-  - vendor/bin/phpunit --coverage-clover cache/logs/clover.xml
-  - vendor/bin/infection --only-covered --no-progress --no-interaction --threads=4
 
-after_success:
-  - php "$HOME/ocular.phar" code-coverage:upload --format=php-clover cache/logs/clover.xml
+before_script:
+  - test "$TRAVIS_ALLOW_FAILURE" == "true" || export PHPUNIT_FLAGS="--coverage-clover cache/logs/clover.xml"
+  - export HAS_XDEBUG=$(php -m | grep -i xdebug)
+
+script:
+  - vendor/bin/phpunit $PHPUNIT_FLAGS
+  - test -z "$HAS_XDEBUG" || vendor/bin/infection --only-covered --no-progress --no-interaction --threads=4
+
+after_script:
+  - test "$TRAVIS_ALLOW_FAILURE" == "true" || php "$HOME/ocular.phar" code-coverage:upload --format=php-clover cache/logs/clover.xml
 
