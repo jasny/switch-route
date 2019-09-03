@@ -36,6 +36,7 @@ install:
   
 script:
   - vendor/bin/phpunit --coverage-clover cache/logs/clover.xml
+  - vendor/bin/infection --only-covered --no-progress --no-interaction --threads=4
 
 after_success:
   - php "$HOME/ocular.phar" code-coverage:upload --format=php-clover cache/logs/clover.xml
