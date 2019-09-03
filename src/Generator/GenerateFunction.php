@@ -155,7 +155,7 @@ CODE;
                 return sprintf('"%s" => $segments[%d]', addslashes($name), $pos);
             };
 
-            return '[' . join(', ', array_map($fnMap, array_keys($vars), array_values($vars))) . ']';
+            return '[' . join(', ', array_map($fnMap, array_keys($vars), $vars)) . ']';
         }
 
         return isset($vars[$name]) ? "\$segments[{$vars[$name]}]" : var_export($default, true);

@@ -24,6 +24,7 @@ class GenerateFunctionTest extends TestCase
     protected function getRouteArgs()
     {
         $routes = $this->getRoutes();
+        $notFound = null;
 
         $routeArgs = [];
         $isClosure = $this->isInstanceOf(Closure::class);
@@ -35,6 +36,11 @@ class GenerateFunctionTest extends TestCase
 
             $routeArgs[] = [$route, $isClosure];
         }
+
+        // Not found last
+        usort($routeArgs, function ($a, $b) {
+            return isset($a[0]['action']) && $a[0]['action'] === 'not-found' ? 1 : -1;
+        });
 
         return $routeArgs;
     }

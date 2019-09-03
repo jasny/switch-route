@@ -67,14 +67,12 @@ class InvokeMiddleware implements MiddlewareInterface
                 break;
             case '':
                 switch ($action) {
+                    case 'not-found':
+                        return call('', 'not-found', $request, $request->getAttribute('route:{id}', NULL));
                     case 'list-photos':
                         return call('', 'list-photos', $request, $request->getAttribute('route:{id}', NULL));
                     case 'add-photos':
                         return call('', 'add-photos', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'not-found':
-                        return call('', 'not-found', $request, $request->getAttribute('route:{id}', NULL));
-                    case '':
-                        return $this->notFound($request);
                 }
                 break;
         }

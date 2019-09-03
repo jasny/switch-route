@@ -25,22 +25,25 @@ class EndpointTest extends TestCase
         $this->assertEquals('/users/*', $endpoint->getPath());
     }
 
-    public function testWithRoute()
+    public function methodProvider()
+    {
+        return [
+            ['GET', 'POST', 'PATCH'],
+            ['get', 'post', 'patch'],
+            ['Get', 'Post', 'Patch'],
+        ];
+    }
+
+    /**
+     * @dataProvider methodProvider
+     */
+    public function testWithRoute($method)
     {
         $endpoint = new Endpoint('/users/*');
-        /**
-         * withRoute method uses strtoupper($method) as key, so need pass lowercase and expect uppercase
-         * what if I could pass something like 'anything'?
-         */
-        $newEndpoint = $endpoint->withRoute('get', ['action' => 'get-user'], ['id' => 1]);
+
+        $newEndpoint = $endpoint->withRoute($method, ['action' => 'get-user'], ['id' => 1]);
         $this->assertEquals(['GET'], $newEndpoint->getAllowedMethods());
-        try {
-            $newEndpoint->getVars('get');
-        } catch (Exception $exception) {
-            $this->assertInstanceOf(OutOfBoundsException::class, $exception);
-            $this->assertSame('Method \'get\' not available for endpoint \'/users/*\'', $exception->getMessage());
-            $this->assertSame(0, $exception->getCode());
-        }
+
         $this->assertEquals(['id' => 1], $newEndpoint->getVars('GET'));
         $this->assertEquals(['GET' => ['action' => 'get-user']], $newEndpoint->getRoutes());
 
@@ -49,7 +52,10 @@ class EndpointTest extends TestCase
         $this->assertEquals([], $endpoint->getRoutes());
     }
 
-    public function testWithRouteWithDuplicateMethod()
+    /**
+     * @dataProvider methodProvider
+     */
+    public function testWithRouteWithDuplicateMethod($method)
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Duplicate route for 'GET /users/*'");
@@ -57,15 +63,15 @@ class EndpointTest extends TestCase
         (new Endpoint('/users/*'))
             ->withRoute('GET', ['action' => 'get-user'], [])
             ->withRoute('POST', ['action' => 'update-user'], [])
-            ->withRoute('GET', ['action' => 'fetch-user-by-id'], []);
+            ->withRoute($method, ['action' => 'fetch-user-by-id'], []);
     }
 
     public function testGetAllowedMethods()
     {
         $endpoint = (new Endpoint('/users/*'))
             ->withRoute('GET', [], [])
-            ->withRoute('POST', [], [])
-            ->withRoute('PATCH', [], [])
+            ->withRoute('post', [], [])
+            ->withRoute('Patch', [], [])
             ->withRoute('', [], []);
 
         $this->assertEquals(['GET', 'POST', 'PATCH'], $endpoint->getAllowedMethods());
@@ -75,8 +81,8 @@ class EndpointTest extends TestCase
     {
         $endpoint = (new Endpoint('/users/*'))
             ->withRoute('GET', ['action' => 'get-user'], [])
-            ->withRoute('POST', ['action' => 'update-user'], [])
-            ->withRoute('PATCH', ['action' => 'patch-user'], []);
+            ->withRoute('post', ['action' => 'update-user'], [])
+            ->withRoute('Patch', ['action' => 'patch-user'], []);
 
         $expected = [
             'GET' => ['action' => 'get-user'],
@@ -87,16 +93,19 @@ class EndpointTest extends TestCase
         $this->assertEquals($expected, $endpoint->getRoutes());
     }
 
-    public function testGetVars()
+    /**
+     * @dataProvider methodProvider
+     */
+    public function testGetVars($get, $post, $patch)
     {
         $endpoint = (new Endpoint('/users/*/*'))
             ->withRoute('GET', [], ['foo' => 1])
-            ->withRoute('POST', [], ['bar' => 1, 'id' => 2])
-            ->withRoute('PATCH', [], ['qux' => 2]);
+            ->withRoute('post', [], ['bar' => 1, 'id' => 2])
+            ->withRoute('Patch', [], ['qux' => 2]);
 
-        $this->assertEquals(['foo' => 1], $endpoint->getVars('GET'));
-        $this->assertEquals(['bar' => 1, 'id' => 2], $endpoint->getVars('POST'));
-        $this->assertEquals(['qux' => 2], $endpoint->getVars('PATCH'));
+        $this->assertEquals(['foo' => 1], $endpoint->getVars($get));
+        $this->assertEquals(['bar' => 1, 'id' => 2], $endpoint->getVars($post));
+        $this->assertEquals(['qux' => 2], $endpoint->getVars($patch));
     }
 
     public function testGetVarsUnknownMethod()

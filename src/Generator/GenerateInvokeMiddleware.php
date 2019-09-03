@@ -124,10 +124,10 @@ CODE;
                     'action' => $action !== '' ? $action : null,
                 ];
 
-                $code[] = self::indent("case '" . addslashes($action) . "':", 12);
-                $code[] = $key !== null
-                    ? self::indent($this->generateRoute($key, $route, []), 16)
-                    : self::indent('return $this->notFound($request);', 16);
+                if ($key !== null) {
+                    $code[] = self::indent("case '" . addslashes($action) . "':", 12);
+                    $code[] = self::indent($this->generateRoute($key, $route, []), 16);
+                }
             }
             $code[] = "        }";
             $code[] = "        break;";

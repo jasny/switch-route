@@ -74,6 +74,20 @@ class InvokerTest extends TestCase
     /**
      * @dataProvider invokableProvider
      */
+    public function testNoNullKeys($controller, $action, $invokable, $expected)
+    {
+        $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
+        $genArg = $this->createCallbackMock($this->never());
+
+        $invoker = new Invoker(null, $reflectionFactory);
+        $code = $invoker->generateInvocation(array_filter(compact('controller', 'action')), $genArg);
+
+        $this->assertEquals(sprintf($expected, ''), $code);
+    }
+
+    /**
+     * @dataProvider invokableProvider
+     */
     public function testWithArguments($controller, $action, $invokable, $expected)
     {
         $expectedCode = sprintf($expected, "\$var['id'] ?? NULL, \$var['some'] ?? NULL, \$var['good'] ?? 'ok'");
@@ -203,6 +217,8 @@ class InvokerTest extends TestCase
             [[42, 'hello'], '[integer, string]'],
             [[new \stdClass(), 'foo'], '[stdClass, string]'],
             [['foo', 'bar', 'qux'], '[string, string, string]'],
+            ['foo::bar::zoo', 'string'],
+            [['foo\\bar\\zoo', 'foo\\roo'], '[string, string]'],
         ];
     }
 

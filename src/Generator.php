@@ -13,6 +13,8 @@ use RuntimeException;
  */
 class Generator
 {
+    private const DIR_MODE = 0755;
+
     /**
      * @var callable
      */
@@ -53,7 +55,7 @@ class Generator
         }
 
         if (!is_dir(dirname($file))) {
-            $this->tryFs('mkdir', dirname($file), 0755, true);
+            $this->tryFs('mkdir', dirname($file), self::DIR_MODE, true);
         }
 
         $this->tryFs('file_put_contents', $file, $code);

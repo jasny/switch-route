@@ -10,6 +10,7 @@ use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -40,7 +41,18 @@ class GenerateInvokeMiddlewareTest extends TestCase
         return $routeArgs;
     }
 
-    public function test()
+    public function serverRequestProvider()
+    {
+        return [
+            [ServerRequestInterface::class],
+            [ServerRequest::class],
+        ];
+    }
+
+    /**
+     * @dataProvider serverRequestProvider
+     */
+    public function test(string $serverRequestClass)
     {
         $routes = $this->getRoutes();
         $routeArgs = $this->getRouteArgs();
@@ -49,9 +61,9 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
             ->withConsecutive(...$routeArgs)
-            ->willReturnCallback(function ($route, callable $genArg) {
+            ->willReturnCallback(function ($route, callable $genArg) use ($serverRequestClass) {
                 ['controller' => $controller, 'action' => $action] = $route;
-                $request = $genArg('request', ServerRequestInterface::class, null);
+                $request = $genArg('request', $serverRequestClass, null);
                 $id = $genArg('id', '', null);
                 return sprintf("call('%s', '%s', %s, %s)", $controller, $action, $request, $id);
             });

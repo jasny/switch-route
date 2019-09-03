@@ -48,13 +48,15 @@ final class Endpoint
      */
     public function withRoute(string $method, $route, array $vars): self
     {
+        $method = strtoupper($method);
+
         if (isset($this->routes[$method])) {
             throw new InvalidRouteException("Duplicate route for '$method {$this->path}'");
         }
 
         $copy = clone $this;
-        $copy->routes[strtoupper($method)] = $route;
-        $copy->vars[strtoupper($method)] = $vars;
+        $copy->routes[$method] = $route;
+        $copy->vars[$method] = $vars;
 
         return $copy;
     }

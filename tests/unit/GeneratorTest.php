@@ -40,7 +40,7 @@ class GeneratorTest extends TestCase
 
         $expectStructure = $this->getStructure();
         $generate = $this->createCallbackMock($this->once(), ['FortyTwo', $routes, $expectStructure], $script);
-        $path = vfsStream::url('tmp/generated/routes.php');
+        $path = vfsStream::url('tmp/generated/sub/routes.php');
 
         $generator = new Generator($generate);
         $generator->generate('FortyTwo', $path, $getRoutes, false);

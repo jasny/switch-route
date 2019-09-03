@@ -19,12 +19,12 @@ trait RoutesTrait
             'POST|PUT /users/{id}'        => ['controller' => 'user', 'action' => 'update'],
             'DELETE   /users/{id}'        => ['controller' => 'user', 'action' => 'delete'],
 
-            'GET      /users/{id}/photos' => ['action' => 'list-photos'],
-            'POST     /users/{id}/photos' => ['action' => 'add-photos'],
+            'default'                     => ['action' => 'not-found'],
 
             'POST     /export'            => ['include' => 'scripts/export.php'],
 
-            'default'                     => ['action' => 'not-found'],
+            'GET      /users/{id}/photos' => ['action' => 'list-photos'],
+            'POST     /users/{id}/photos' => ['action' => 'add-photos'],
         ];
     }
 

@@ -60,12 +60,11 @@ class Invoker implements InvokerInterface
         ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
 
         $invokable = ($this->createInvokable)($controller, $action);
+        $this->assertInvokable($invokable);
 
         if (is_string($invokable) && strpos($invokable, '::') !== false) {
-            $invokable = explode('::', $invokable, 2);
+            $invokable = explode('::', $invokable);
         }
-
-        $this->assertInvokable($invokable);
 
         $reflection = $this->getReflection($invokable);
 
@@ -119,8 +118,15 @@ class Invoker implements InvokerInterface
      */
     protected function assertInvokable($invokable): void
     {
-        $valid = is_callable($invokable, true) &&
-            (is_string($invokable) || (is_array($invokable) && is_string($invokable[0]) && is_string($invokable[1])));
+        $valid = is_callable($invokable, true) && (
+            (
+                is_string($invokable) && preg_match('/^[a-z_]\w*(\\\\\w+)*(::[a-z_]\w*)?$/i', $invokable)
+            ) || (
+                is_array($invokable) &&
+                is_string($invokable[0]) && preg_match('/^[a-z_]\w*(\\\\\w+)*$/i', $invokable[0]) &&
+                preg_match('/^[a-z_]\w*$/i', $invokable[1])
+            )
+        );
 
         if ($valid) {
             return;
