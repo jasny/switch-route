@@ -27,7 +27,6 @@ branches:
     - travis
 
 before_install:
-  - composer self-update
   - test "$TRAVIS_PHP_VERSION" != "nightly" || export COMPOSER_FLAGS="$COMPOSER_FLAGS --ignore-platform-reqs"
 
 install:
