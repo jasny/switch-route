@@ -11,20 +11,20 @@ trait RoutesTrait
     protected function getRoutes(): array
     {
         return [
-            '  GET    /  '                => ['controller' => 'info'],
+            '  GET    /  '                => ['controller' => 'InfoController'],
 
-            'GET      /users'             => ['controller' => 'user', 'action' => 'list'],
-            'POST     /users'             => ['controller' => 'user', 'action' => 'add'],
-            'GET      /users/{id}'        => ['controller' => 'user', 'action' => 'get'],
-            'POST|PUT /users/{id}'        => ['controller' => 'user', 'action' => 'update'],
-            'DELETE   /users/{id}'        => ['controller' => 'user', 'action' => 'delete'],
+            'GET      /users'             => ['controller' => 'UserController', 'action' => 'listAction'],
+            'POST     /users'             => ['controller' => 'UserController', 'action' => 'addAction'],
+            'GET      /users/{id}'        => ['controller' => 'UserController', 'action' => 'getAction'],
+            'POST|PUT /users/{id}'        => ['controller' => 'UserController', 'action' => 'updateAction'],
+            'DELETE   /users/{id}'        => ['controller' => 'UserController', 'action' => 'deleteAction'],
 
-            'default'                     => ['action' => 'not-found'],
+            'default'                     => ['action' => 'NotFoundAction'],
 
             'POST     /export'            => ['include' => 'scripts/export.php'],
 
-            'GET      /users/{id}/photos' => ['action' => 'list-photos'],
-            'POST     /users/{id}/photos' => ['action' => 'add-photos'],
+            'GET      /users/{id}/photos' => ['action' => 'ListPhotosAction'],
+            'POST     /users/{id}/photos' => ['action' => 'AddPhotosAction'],
         ];
     }
 
@@ -47,26 +47,26 @@ trait RoutesTrait
             "\e" => new Endpoint(''),
         ];
 
-        $structure["\0"] = $structure["\0"]->withRoute('GET', ['controller' => 'info'], []);
+        $structure["\0"] = $structure["\0"]->withRoute('GET', ['controller' => 'InfoController'], []);
 
         $structure["users"]["\0"] = $structure["users"]["\0"]
-            ->withRoute('GET', ['controller' => 'user', 'action' => 'list'], [])
-            ->withRoute('POST', ['controller' => 'user', 'action' => 'add'], []);
+            ->withRoute('GET', ['controller' => 'UserController', 'action' => 'listAction'], [])
+            ->withRoute('POST', ['controller' => 'UserController', 'action' => 'addAction'], []);
 
         $structure["users"]["*"]["\0"] = $structure["users"]["*"]["\0"]
-            ->withRoute('GET', ['controller' => 'user', 'action' => 'get'], ['id' => 1])
-            ->withRoute('POST', ['controller' => 'user', 'action' => 'update'], ['id' => 1])
-            ->withRoute('PUT', ['controller' => 'user', 'action' => 'update'], ['id' => 1])
-            ->withRoute('DELETE', ['controller' => 'user', 'action' => 'delete'], ['id' => 1]);
+            ->withRoute('GET', ['controller' => 'UserController', 'action' => 'getAction'], ['id' => 1])
+            ->withRoute('POST', ['controller' => 'UserController', 'action' => 'updateAction'], ['id' => 1])
+            ->withRoute('PUT', ['controller' => 'UserController', 'action' => 'updateAction'], ['id' => 1])
+            ->withRoute('DELETE', ['controller' => 'UserController', 'action' => 'deleteAction'], ['id' => 1]);
 
         $structure["users"]["*"]["photos"]["\0"] = $structure["users"]["*"]["photos"]["\0"]
-            ->withRoute('GET', ['action' => 'list-photos'], ['id' => 1])
-            ->withRoute('POST', ['action' => 'add-photos'], ['id' => 1]);
+            ->withRoute('GET', ['action' => 'ListPhotosAction'], ['id' => 1])
+            ->withRoute('POST', ['action' => 'AddPhotosAction'], ['id' => 1]);
 
         $structure["export"]["\0"] = $structure["export"]["\0"]
             ->withRoute('POST', ['include' => 'scripts/export.php'], []);
 
-        $structure["\e"] = $structure["\e"]->withRoute('', ['action' => 'not-found'], []);
+        $structure["\e"] = $structure["\e"]->withRoute('', ['action' => 'NotFoundAction'], []);
 
         return $structure;
     }

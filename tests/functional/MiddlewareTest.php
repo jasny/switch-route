@@ -75,9 +75,15 @@ class MiddlewareTest extends TestCase
     {
         $file = '/tmp/generated/InvokeMiddleware.php';//vfsStream::url('tmp/generated/InvokeMiddleware.php');
 
-        $invoker = new Invoker(function ($class, $action) {
-            [$class, $method] = Invoker::createInvokable($class, $action);
-            return [__NAMESPACE__ . '\\Support\\Psr\\' . $class, $method];
+        $invoker = new Invoker(function ($controller, $action) {
+            [$class, $method] = $controller !== null
+                ? [$controller . 'Controller', ($action ?? 'default') . 'Action']
+                : [$action . 'Action', '__invoke'];
+
+            return [
+                __NAMESPACE__ . '\\Support\\Psr\\' . strtr(ucwords($class, '-'), ['-' => '']),
+                strtr(lcfirst(ucwords($method, '-')), ['-' => ''])
+            ];
         });
 
         $generator = new Generator(new Generator\GenerateInvokeMiddleware($invoker));

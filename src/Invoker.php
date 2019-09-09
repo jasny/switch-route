@@ -53,7 +53,7 @@ class Invoker implements InvokerInterface
      * @return string
      * @throws ReflectionException
      */
-    public function generateInvocation(array $route, callable $genArg, string $new = '(new %s)'): string
+    public function generateInvocation(array $route, callable $genArg, string $new = '(new \\%s)'): string
     {
         ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
 
@@ -62,7 +62,7 @@ class Invoker implements InvokerInterface
 
         $reflection = $this->getReflection($invokable);
         $call = $reflection instanceof ReflectionFunction
-            ? $invokable
+            ? '\\' . $invokable
             : $this->generateInvocationMethod($invokable, $reflection, $new);
 
         return $call . '(' . $this->generateInvocationArgs($reflection, $genArg) . ')';
@@ -87,7 +87,7 @@ class Invoker implements InvokerInterface
 
         return $invokable[1] === '__invoke' || $invokable[1] === ''
             ? sprintf($new, $invokable[0])
-            : ($reflection->isStatic() ? "{$invokable[0]}::" : sprintf($new, $invokable[0]) . "->") . $invokable[1];
+            : ($reflection->isStatic() ? "\\{$invokable[0]}::" : sprintf($new, $invokable[0]) . "->") . $invokable[1];
     }
 
     /**
@@ -182,7 +182,7 @@ CODE;
     }
 
     /**
-     * Default method to create invokable from controller and action name
+     * Default method to create invokable from controller and action FQCN.
      *
      * @param string|null $controller
      * @param string|null $action
@@ -194,13 +194,8 @@ CODE;
             throw new \BadMethodCallException("Neither controller or action is set");
         }
 
-        [$class, $method] = $controller !== null
-            ? [$controller . 'Controller', ($action ?? 'default') . 'Action']
-            : [$action . 'Action', '__invoke'];
-
-        return [
-            strtr(ucwords($class, '-'), ['-' => '']),
-            strtr(lcfirst(ucwords($method, '-')), ['-' => ''])
-        ];
+        return $controller !== null
+            ? [$controller, ($action ?? 'defaultAction')]
+            : [$action, '__invoke'];
     }
 }

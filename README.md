@@ -49,16 +49,16 @@ In all examples we'll use the following function to get the routes;
 function getRoutes(): array
 {
     return [
-        'GET      /'                  => ['controller' => 'info'],
+        'GET      /'                  => ['controller' => 'InfoController'],
 
-        'GET      /users'             => ['controller' => 'user', 'action' => 'list'],
-        'POST     /users'             => ['controller' => 'user', 'action' => 'add'],
-        'GET      /users/{id}'        => ['controller' => 'user', 'action' => 'get'],
-        'POST|PUT /users/{id}'        => ['controller' => 'user', 'action' => 'update'],
-        'DELETE   /users/{id}'        => ['controller' => 'user', 'action' => 'delete'],
+        'GET      /users'             => ['controller' => 'UserController', 'action' => 'listAction'],
+        'POST     /users'             => ['controller' => 'UserController', 'action' => 'addAction'],
+        'GET      /users/{id}'        => ['controller' => 'UserController', 'action' => 'getAction'],
+        'POST|PUT /users/{id}'        => ['controller' => 'UserController', 'action' => 'updateAction'],
+        'DELETE   /users/{id}'        => ['controller' => 'UserController', 'action' => 'deleteAction'],
 
-        'GET      /users/{id}/photos' => ['action' => 'list-photos'],
-        'POST     /users/{id}/photos' => ['action' => 'add-photos'],
+        'GET      /users/{id}/photos' => ['action' => 'ListPhotosAction'],
+        'POST     /users/{id}/photos' => ['action' => 'AddPhotosAction'],
 
         'POST     /export'            => ['include' => 'scripts/export.php'],
     ];
@@ -84,6 +84,44 @@ class UserController
 ```
 
 _Note that the path variables are always strings._
+
+#### Pretty controller and action names
+
+By default the `controller` and `action` should be configured with a fully qualified class name (includes namespace).
+However, it's possible to use a pretty name instead and have the `Invoker` convert it to an fqcn.
+
+```php
+function getRoutes(): array
+{
+    return [
+        'GET      /'                  => ['controller' => 'info'],
+
+        'GET      /users'             => ['controller' => 'user', 'action' => 'list'],
+        'POST     /users'             => ['controller' => 'user', 'action' => 'add'],
+        'GET      /users/{id}'        => ['controller' => 'user', 'action' => 'get'],
+        'POST|PUT /users/{id}'        => ['controller' => 'user', 'action' => 'update'],
+        'DELETE   /users/{id}'        => ['controller' => 'user', 'action' => 'delete'],
+
+        'GET      /users/{id}/photos' => ['action' => 'list-photos'],
+        'POST     /users/{id}/photos' => ['action' => 'add-photos'],
+
+        'POST     /export'            => ['include' => 'scripts/export.php'],
+    ];
+}
+```
+
+Pass a callable to the `Invoker` that converts the pretty controller and action names 
+
+```php
+$stud = fn($str) => strtr(ucwords($str, '-'), ['-' => '']);
+$camel = fn($str) => strtr(lcfirst(ucwords($str, '-')), ['-' => '']);
+
+$invoker = new Invoker(function (?string $controller, ?string $action) use ($stud, $camel) {
+    return $controller !== null
+        ? [$stud($controller) . 'Controller', $camel($action ?? 'default') . 'Action']
+        : [$stud($action) . 'Action', '__invoke'];
+});
+```
 
 ### Basic
 
@@ -331,7 +369,7 @@ both the route properties and path variables as PSR-7 `ServerRequest` attributes
 When calling `generate`, you pass the name of the middleware class. This may include a namespace.
 
 ```php
-use Jasny\SwitchRoute\Generator as RouteGenerator;
+use Jasny\SwitchRoute\Generator;
 
 $generate = new Generator\GenerateRouteMiddleware();
 
@@ -354,8 +392,8 @@ arguments. To specify a fixed value for an argument of the action, the route arg
 
 ```php
 [
-    'GET /users/{id}/photos'        => ['action' => 'list-photos', '{page}' => 1],
-    'GET /users/{id}/photos/{page}' => ['action' => 'list-photos'],
+    'GET /users/{id}/photos'        => ['action' => 'ListPhotosAction', '{page}' => 1],
+    'GET /users/{id}/photos/{page}' => ['action' => 'ListPhotosAction'],
 ];
 ```
 
@@ -373,7 +411,7 @@ during construction (optional DI).
 When calling `generate`, you pass the name of the middleware class. This may include a namespace.
 
 ```php
-use Jasny\SwitchRoute\Generator as RouteGenerator;
+use Jasny\SwitchRoute\Generator;
 
 $generate = new Generator\GenerateInvokeMiddleware();
 
@@ -414,24 +452,23 @@ the middleware will also set the `Allow` header.
 The `Invoker` is generates snippets for invoking the action or including the file as stated in the selected route. This
 includes converting the `controller` and/or `action` attribute to a class name and possibly method name.
 
-By default, the if the route has a `controller` property, the invoker will add 'Controller' and apply stud casing to
-create the controller class name. The `action` property is taken as method, applying camel casing. It defaults to
-`defaultAction`.
+By default, the if the route has a `controller` property, use it as the class name. The `action` property is taken as
+method. It defaults to `defaultAction`.
 
-If only an `action` property is present, the invoker will add `Action` and apply stud casing to create the action class
-name. This must be an [invokable object](https://www.php.net/manual/en/language.oop5.magic.php#object.invoke).
+If only an `action` property is present, the invoker will use that as class name. The class must define an
+[invokable object](https://www.php.net/manual/en/language.oop5.magic.php#object.invoke).
 
 You can change how the invokable class and method names are generated by passing a callback to the constructor. The can
-be used for instance to add a namespace to the controller and action class.
+be used for instance convert pretty names to fully qualified class names (FQCN) for the the controller and action class.
 
 ```php
 $stud = fn($str) => strtr(ucwords($str, '-'), ['-' => '']);
 $camel = fn($str) => strtr(lcfirst(ucwords($str, '-')), ['-' => '']);
 
-$invoker = new RouteInvoker(function (?string $controller, ?string $action) {
+$invoker = new Invoker(function (?string $controller, ?string $action) use ($stud, $camel) {
     return $controller !== null
-        ? ['App\\Generated\\' . $stud($controller) . 'Controller', $camel($action ?? 'default') . 'Action']
-        : ['App\\Generated\\' . $stud($action) . 'Action', '__invoke'];
+        ? ['App\\' . $stud($controller) . 'Controller', $camel($action ?? 'default') . 'Action']
+        : ['App\\' . $stud($action) . 'Action', '__invoke'];
 });
 ```
 

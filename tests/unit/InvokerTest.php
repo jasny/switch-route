@@ -51,23 +51,23 @@ class InvokerTest extends TestCase
     public function invokableProvider()
     {
         return [
-            "controller:foo action:to-do" => [
-                'foo',
-                'to-do',
+            "FooController::toDoAction" => [
+                'FooController',
+                'toDoAction',
                 ['FooController', 'toDoAction'],
-                "(new FooController)->toDoAction(%s)"
+                "(new \FooController)->toDoAction(%s)"
             ],
-            "controller:to-do" => [
-                'to-do',
+            "ToDoController" => [
+                'ToDoController',
                 null,
                 ['ToDoController', 'defaultAction'],
-                "(new ToDoController)->defaultAction(%s)"
+                "(new \ToDoController)->defaultAction(%s)"
             ],
-            "action:qux" =>[
+            "QuxAction" =>[
                 null,
-                'qux',
+                'QuxAction',
                 ['QuxAction', '__invoke'],
-                "(new QuxAction)(%s)"
+                "(new \QuxAction)(%s)"
             ],
         ];
     }
@@ -147,26 +147,23 @@ class InvokerTest extends TestCase
         $genArg = $this->createCallbackMock($this->once(), ['id', '', null], "\$var['id'] ?? NULL");
 
         $invoker = new Invoker(null, $reflectionFactory);
-        $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'bar'], $genArg);
+        $code = $invoker->generateInvocation(['controller' => 'FooController', 'action' => 'barAction'], $genArg);
 
-        $this->assertEquals("FooController::barAction(\$var['id'] ?? NULL)", $code);
+        $this->assertEquals("\FooController::barAction(\$var['id'] ?? NULL)", $code);
     }
 
     /**
      * @dataProvider invokableProvider
      */
-    public function testGenerateWithCustomClassName($controller, $action, $invokable, $expected)
+    public function testGenerateWithNamespace($controller, $action, $invokable, $expected)
     {
         $invokable[0] = 'App\\Generated\\' . $invokable[0];
-        $expected = str_replace('new ', 'new App\\Generated\\', $expected);
+        $expected = str_replace('new ', 'new \\App\\Generated', $expected);
 
         $createInvokable = function (?string $controller, ?string $action) {
             return $controller !== null
-                ? [
-                    'App\\Generated\\' . strtr(ucwords($controller, '-'), ['-' => '']) . 'Controller',
-                    strtr(lcfirst(ucwords($action ?? 'default', '-')), ['-' => '']) . 'Action'
-                ]
-                : ['App\\Generated\\' . strtr(ucwords($action, '-'), ['-' => '']) . 'Action', '__invoke'];
+                ? ['App\\Generated\\' . $controller, $action ?? 'defaultAction']
+                : ['App\\Generated\\' . $action, '__invoke'];
         };
 
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
@@ -201,7 +198,7 @@ class InvokerTest extends TestCase
         $invoker = new Invoker($createInvokable, $reflectionFactory);
         $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
 
-        $this->assertEquals("foo_todo(\$var['id'] ?? NULL)", $code);
+        $this->assertEquals("\\foo_todo(\$var['id'] ?? NULL)", $code);
     }
 
     public function testGenerateWithMethodString()
@@ -218,7 +215,7 @@ class InvokerTest extends TestCase
         $invoker = new Invoker($createInvokable, $reflectionFactory);
         $code = $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
 
-        $this->assertEquals("(new App\\Foo)->toDo(\$var['id'] ?? NULL)", $code);
+        $this->assertEquals("(new \\App\\Foo)->toDo(\$var['id'] ?? NULL)", $code);
     }
 
     public function invalidInvokerProvider()
@@ -292,8 +289,13 @@ CODE;
         $this->assertEquals($expected, $invoker->generateDefault());
     }
 
-    public function testCreateInvokable()
+    /**
+     * @dataProvider invokableProvider
+     */
+    public function testCreateInvokable($controller, $action, $expected)
     {
-        $this->assertSame(['DummyController', 'defaultAction'], Invoker::createInvokable('Dummy', null));
+        $invokable = Invoker::createInvokable($controller, $action);
+
+        $this->assertSame($expected, $invokable);
     }
 }

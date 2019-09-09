@@ -30,7 +30,7 @@ class RouteMiddleware implements MiddlewareInterface
                 switch ($method) {
                     case 'GET':
                         return $request
-                            ->withAttribute('route:controller', 'info');
+                            ->withAttribute('route:controller', 'InfoController');
                 }
                 break 1;
             case "users":
@@ -40,12 +40,12 @@ class RouteMiddleware implements MiddlewareInterface
                         switch ($method) {
                             case 'GET':
                                 return $request
-                                    ->withAttribute('route:controller', 'user')
-                                    ->withAttribute('route:action', 'list');
+                                    ->withAttribute('route:controller', 'UserController')
+                                    ->withAttribute('route:action', 'listAction');
                             case 'POST':
                                 return $request
-                                    ->withAttribute('route:controller', 'user')
-                                    ->withAttribute('route:action', 'add');
+                                    ->withAttribute('route:controller', 'UserController')
+                                    ->withAttribute('route:action', 'addAction');
                         }
                         break 2;
                     default:
@@ -55,19 +55,19 @@ class RouteMiddleware implements MiddlewareInterface
                                 switch ($method) {
                                     case 'GET':
                                         return $request
-                                            ->withAttribute('route:controller', 'user')
-                                            ->withAttribute('route:action', 'get')
+                                            ->withAttribute('route:controller', 'UserController')
+                                            ->withAttribute('route:action', 'getAction')
                                             ->withAttribute('route:{id}', $segments[1]);
                                     case 'POST':
                                     case 'PUT':
                                         return $request
-                                            ->withAttribute('route:controller', 'user')
-                                            ->withAttribute('route:action', 'update')
+                                            ->withAttribute('route:controller', 'UserController')
+                                            ->withAttribute('route:action', 'updateAction')
                                             ->withAttribute('route:{id}', $segments[1]);
                                     case 'DELETE':
                                         return $request
-                                            ->withAttribute('route:controller', 'user')
-                                            ->withAttribute('route:action', 'delete')
+                                            ->withAttribute('route:controller', 'UserController')
+                                            ->withAttribute('route:action', 'deleteAction')
                                             ->withAttribute('route:{id}', $segments[1]);
                                 }
                                 break 3;
@@ -78,11 +78,11 @@ class RouteMiddleware implements MiddlewareInterface
                                         switch ($method) {
                                             case 'GET':
                                                 return $request
-                                                    ->withAttribute('route:action', 'list-photos')
+                                                    ->withAttribute('route:action', 'ListPhotosAction')
                                                     ->withAttribute('route:{id}', $segments[1]);
                                             case 'POST':
                                                 return $request
-                                                    ->withAttribute('route:action', 'add-photos')
+                                                    ->withAttribute('route:action', 'AddPhotosAction')
                                                     ->withAttribute('route:{id}', $segments[1]);
                                         }
                                         break 4;
@@ -107,7 +107,7 @@ class RouteMiddleware implements MiddlewareInterface
         }
 
         return $request
-            ->withAttribute('route:action', 'not-found');
+            ->withAttribute('route:action', 'NotFoundAction');
     }
 
     /**

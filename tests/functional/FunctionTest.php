@@ -22,15 +22,21 @@ class FunctionTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$root = vfsStream::setup('tmp');
-        $file = vfsStream::url('tmp/generated/routes.php');
+        $file = vfsStream::url('tmp/generated/route.php');
 
-        $invoker = new Invoker(function ($class, $action) {
-            [$class, $method] = Invoker::createInvokable($class, $action);
-            return [__NAMESPACE__ . '\\Support\\Basic\\' . $class, $method];
+        $invoker = new Invoker(function ($controller, $action) {
+            [$class, $method] = $controller !== null
+                ? [$controller . 'Controller', ($action ?? 'default') . 'Action']
+                : [$action . 'Action', '__invoke'];
+
+            return [
+                __NAMESPACE__ . '\\Support\\Basic\\' . strtr(ucwords($class, '-'), ['-' => '']),
+                strtr(lcfirst(ucwords($method, '-')), ['-' => ''])
+            ];
         });
 
         $generator = new Generator(new Generator\GenerateFunction($invoker));
-        $generator->generate('route', $file, [__CLASS__, 'getRoutes'], true);
+        $generator->generate(__NAMESPACE__ . '\\route', $file, [__CLASS__, 'getRoutes'], true);
 
         require $file;
     }
@@ -45,7 +51,8 @@ class FunctionTest extends TestCase
      */
     public function test(string $method, string $path, $expected)
     {
-        $result = route($method, $path);
+        $fn = \Closure::fromCallable(__NAMESPACE__ . '\\route');
+        $result = $fn($method, $path);
 
         $this->assertEquals($expected, $result);
     }

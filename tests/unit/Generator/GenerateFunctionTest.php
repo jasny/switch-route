@@ -39,7 +39,7 @@ class GenerateFunctionTest extends TestCase
 
         // Not found last
         usort($routeArgs, function ($a, $b) {
-            return isset($a[0]['action']) && $a[0]['action'] === 'not-found' ? 1 : -1;
+            return isset($a[0]['action']) && $a[0]['action'] === 'NotFoundAction' ? 1 : -1;
         });
 
         return $routeArgs;
@@ -56,7 +56,7 @@ class GenerateFunctionTest extends TestCase
             ->withConsecutive(...$routeArgs)
             ->willReturnCallback(function ($route, callable $genArg) {
                 ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
-                $arg = $action !== 'not-found' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);
+                $arg = $action !== 'NotFoundAction' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);
                 return sprintf("call('%s', '%s', %s)", $controller, $action, $arg);
             });
 
@@ -65,6 +65,26 @@ class GenerateFunctionTest extends TestCase
         $code = $generate('route_generate_function_test', $routes, $structure);
 
         $expected = file_get_contents(__DIR__ . '/expected/generate-function-test.phps');
+        $this->assertEquals($expected, $code);
+    }
+
+    public function testGenerateFunctionNamespace()
+    {
+        $routes = ['GET /' => ['controller' => 'info']];
+        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
+
+        $invoker = $this->createMock(Invoker::class);
+        $invoker->expects($this->once())->method('generateInvocation')
+            ->with(['controller' => 'info'], $this->isInstanceOf(Closure::class))
+            ->willReturn('info()');
+        $invoker->expects($this->once())->method('generateDefault')
+            ->willReturn("return false;");
+
+        $generate = new GenerateFunction($invoker);
+
+        $code = $generate('Generated\route_generate_function_test_function_ns', $routes, $structure);
+
+        $expected = file_get_contents(__DIR__ . '/expected/generate-function-test-function-ns.phps');
         $this->assertEquals($expected, $code);
     }
 
@@ -79,6 +99,7 @@ class GenerateFunctionTest extends TestCase
             ->willReturn('info()');
         $invoker->expects($this->once())->method('generateDefault')
             ->willReturn("http_response_code(404);\necho \"Not Found\";");
+
         $generate = new GenerateFunction($invoker);
 
         $code = $generate('route_generate_function_test_default', $routes, $structure);

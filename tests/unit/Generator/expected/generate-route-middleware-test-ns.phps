@@ -32,7 +32,7 @@ class RouteMiddleware implements MiddlewareInterface
                 switch ($method) {
                     case 'GET':
                         return $request
-                            ->withAttribute('route:controller', 'info');
+                            ->withAttribute('route:controller', 'InfoController');
                 }
                 break 1;
         }

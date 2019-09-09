@@ -16,7 +16,7 @@ function route_generate_function_test(string $method, string $path)
             $allowedMethods = ['GET'];
             switch ($method) {
                 case 'GET':
-                    return call('info', '', NULL);
+                    return call('InfoController', '', NULL);
             }
             break 1;
         case "users":
@@ -25,9 +25,9 @@ function route_generate_function_test(string $method, string $path)
                     $allowedMethods = ['GET', 'POST'];
                     switch ($method) {
                         case 'GET':
-                            return call('user', 'list', NULL);
+                            return call('UserController', 'listAction', NULL);
                         case 'POST':
-                            return call('user', 'add', NULL);
+                            return call('UserController', 'addAction', NULL);
                     }
                     break 2;
                 default:
@@ -36,12 +36,12 @@ function route_generate_function_test(string $method, string $path)
                             $allowedMethods = ['GET', 'POST', 'PUT', 'DELETE'];
                             switch ($method) {
                                 case 'GET':
-                                    return call('user', 'get', $segments[1]);
+                                    return call('UserController', 'getAction', $segments[1]);
                                 case 'POST':
                                 case 'PUT':
-                                    return call('user', 'update', $segments[1]);
+                                    return call('UserController', 'updateAction', $segments[1]);
                                 case 'DELETE':
-                                    return call('user', 'delete', $segments[1]);
+                                    return call('UserController', 'deleteAction', $segments[1]);
                             }
                             break 3;
                         case "photos":
@@ -50,9 +50,9 @@ function route_generate_function_test(string $method, string $path)
                                     $allowedMethods = ['GET', 'POST'];
                                     switch ($method) {
                                         case 'GET':
-                                            return call('', 'list-photos', $segments[1]);
+                                            return call('', 'ListPhotosAction', $segments[1]);
                                         case 'POST':
-                                            return call('', 'add-photos', $segments[1]);
+                                            return call('', 'AddPhotosAction', $segments[1]);
                                     }
                                     break 4;
                             }
@@ -74,6 +74,6 @@ function route_generate_function_test(string $method, string $path)
             break 1;
     }
 
-    return call('', 'not-found', $allowedMethods ?? array (
+    return call('', 'NotFoundAction', $allowedMethods ?? array (
     ));
 }

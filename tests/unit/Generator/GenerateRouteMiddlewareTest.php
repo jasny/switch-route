@@ -32,8 +32,8 @@ class GenerateRouteMiddlewareTest extends TestCase
 
     public function testGenerateDefaultRoute()
     {
-        $routes = ['GET /' => ['controller' => 'info']];
-        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
+        $routes = ['GET /' => ['controller' => 'InfoController']];
+        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'InfoController'], [])];
 
         $generate = new GenerateRouteMiddleware();
 
@@ -45,8 +45,8 @@ class GenerateRouteMiddlewareTest extends TestCase
 
     public function testGenerateWithNamespace()
     {
-        $routes = ['GET /' => ['controller' => 'info']];
-        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
+        $routes = ['GET /' => ['controller' => 'InfoController']];
+        $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'InfoController'], [])];
 
         $generate = new GenerateRouteMiddleware();
 

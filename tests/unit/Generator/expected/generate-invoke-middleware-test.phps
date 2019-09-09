@@ -45,34 +45,34 @@ class InvokeMiddleware implements MiddlewareInterface
         $action = $request->getAttribute('route:action', '');
 
         switch ($controller) {
-            case 'info':
+            case 'InfoController':
                 switch ($action) {
                     case '':
-                        return call('info', '', $request, $request->getAttribute('route:{id}', NULL));
+                        return call('InfoController', '', $request, $request->getAttribute('route:{id}', NULL));
                 }
                 break;
-            case 'user':
+            case 'UserController':
                 switch ($action) {
-                    case 'list':
-                        return call('user', 'list', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'add':
-                        return call('user', 'add', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'get':
-                        return call('user', 'get', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'update':
-                        return call('user', 'update', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'delete':
-                        return call('user', 'delete', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'listAction':
+                        return call('UserController', 'listAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'addAction':
+                        return call('UserController', 'addAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'getAction':
+                        return call('UserController', 'getAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'updateAction':
+                        return call('UserController', 'updateAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'deleteAction':
+                        return call('UserController', 'deleteAction', $request, $request->getAttribute('route:{id}', NULL));
                 }
                 break;
             case '':
                 switch ($action) {
-                    case 'not-found':
-                        return call('', 'not-found', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'list-photos':
-                        return call('', 'list-photos', $request, $request->getAttribute('route:{id}', NULL));
-                    case 'add-photos':
-                        return call('', 'add-photos', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'NotFoundAction':
+                        return call('', 'NotFoundAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'ListPhotosAction':
+                        return call('', 'ListPhotosAction', $request, $request->getAttribute('route:{id}', NULL));
+                    case 'AddPhotosAction':
+                        return call('', 'AddPhotosAction', $request, $request->getAttribute('route:{id}', NULL));
                 }
                 break;
         }
