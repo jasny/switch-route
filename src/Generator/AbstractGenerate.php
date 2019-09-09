@@ -26,8 +26,8 @@ abstract class AbstractGenerate
     /**
      * Generate the PHP script with a switch for routing.
      *
-     * @param array $structure
-     * @param int   $level      Structure depth
+     * @param array<string,Endpoint|array> $structure
+     * @param int                          $level      Structure depth
      * @return string
      */
     protected function generateSwitch(array $structure, int $level = 0): string

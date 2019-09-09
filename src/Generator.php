@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute;
 
 use Jasny\SwitchRoute\Generator\GenerateFunction;
-use LogicException;
-use RuntimeException;
+use Spatie\Regex\Regex;
 
 /**
  * Generate a PHP script for HTTP routing.
@@ -38,7 +37,7 @@ class Generator
      * @param string   $file       Filename to store the script.
      * @param callable $getRoutes  Callback to get an array with the routes.
      * @param bool     $overwrite  Overwrite existing file.
-     * @throws RuntimeException if file could not be created.
+     * @throws \RuntimeException if file could not be created.
      */
     public function generate(string $name, string $file, callable $getRoutes, bool $overwrite): void
     {
@@ -51,7 +50,7 @@ class Generator
 
         $code = ($this->generateCode)($name, $routes, $structure);
         if (!is_string($code)) {
-            throw new LogicException("Expected code as string, got " . gettype($code));
+            throw new \LogicException("Expected code as string, got " . gettype($code));
         }
 
         if (!is_dir(dirname($file))) {
@@ -62,7 +61,7 @@ class Generator
     }
 
     /**
-     * Try a file system function and throw a RuntimeException on failure.
+     * Try a file system function and throw a \RuntimeException on failure.
      *
      * @param callable $fn
      * @param mixed    ...$args
@@ -82,7 +81,7 @@ class Generator
         }
 
         if ($ret === false) {
-            throw new RuntimeException(error_get_last()['message']);
+            throw new \RuntimeException(error_get_last()['message'] ?? "Unknown error");
         }
 
         return $ret;
@@ -107,25 +106,28 @@ class Generator
     /**
      * Create a structure with a leaf for each endpoint.
      *
-     * @param array $routes
+     * @param iterable $routes
      * @return array
+     * @throws InvalidRouteException
      */
-    protected function structureEndpoints(array $routes): array
+    protected function structureEndpoints(iterable $routes): array
     {
         $structure = [];
 
         foreach ($routes as $key => $route) {
             if ($key === 'default') {
-                $structure["\e"] = (new Endpoint(''))->withRoute('', $routes['default'], []);
+                $structure["\e"] = (new Endpoint(''))->withRoute('', $route, []);
                 continue;
             }
 
-            if (!preg_match('~^\s*\w+(?:\|\w+)*\s+/\S*\s*$~', $key)) {
+            $match = Regex::match('~^\s*(?P<methods>\w+(?:\|\w+)*)\s+(?P<path>/\S*)\s*$~', $key);
+
+            if (!is_string($key) || !$match->hasMatch()) {
                 throw new InvalidRouteException("Invalid routing key '$key': should be 'METHOD /path'");
             }
 
-            [$methods, $varPath] = preg_split('~\s++~', trim($key));
-            [$segments, $vars] = $this->splitPath($varPath);
+            $methods = $match->namedGroup('methods');
+            [$segments, $vars] = $this->splitPath($match->namedGroup('path'));
 
             $pointer =& $structure;
             foreach ($segments as $segment) {
@@ -161,8 +163,10 @@ class Generator
         $vars = [];
 
         foreach ($segments as $index => &$segment) {
-            if (preg_match('/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment, $match)) {
-                $vars[$match['var']] = $index;
+            $match = Regex::match('/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment);
+
+            if ($match->hasMatch()) {
+                $vars[$match->namedGroup('var')] = $index;
                 $segment = '*';
             }
         }

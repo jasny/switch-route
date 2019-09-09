@@ -17,7 +17,7 @@ class GenerateRouteMiddlewareTest extends TestCase
 {
     use RoutesTrait;
 
-    public function test()
+    public function testGenerate()
     {
         $routes = $this->getRoutes();
         $structure = $this->getStructure();
@@ -30,7 +30,7 @@ class GenerateRouteMiddlewareTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testDefault()
+    public function testGenerateDefaultRoute()
     {
         $routes = ['GET /' => ['controller' => 'info']];
         $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
@@ -43,7 +43,7 @@ class GenerateRouteMiddlewareTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testNs()
+    public function testGenerateWithNamespace()
     {
         $routes = ['GET /' => ['controller' => 'info']];
         $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];

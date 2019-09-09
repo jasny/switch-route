@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute;
 
-use BadMethodCallException;
-use Closure;
 use Jasny\ReflectionFactory\ReflectionFactory;
 use Jasny\ReflectionFactory\ReflectionFactoryInterface;
-use LogicException;
 use ReflectionException;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
 use ReflectionNamedType;
+use Spatie\Regex\Regex;
 
 /**
  * Invoke the action or script specified by the route.
@@ -39,7 +37,7 @@ class Invoker implements InvokerInterface
      */
     public function __construct(?callable $createInvokable = null, ?ReflectionFactoryInterface $reflection = null)
     {
-        $this->createInvokable = $createInvokable ?? Closure::fromCallable([__CLASS__, 'createInvokable']);
+        $this->createInvokable = $createInvokable ?? \Closure::fromCallable([__CLASS__, 'createInvokable']);
         $this->reflection = $reflection ?? new ReflectionFactory();
     }
 
@@ -62,30 +60,32 @@ class Invoker implements InvokerInterface
         $invokable = ($this->createInvokable)($controller, $action);
         $this->assertInvokable($invokable);
 
-        if (is_string($invokable) && strpos($invokable, '::') !== false) {
-            $invokable = explode('::', $invokable);
-        }
-
         $reflection = $this->getReflection($invokable);
+        $call = $reflection instanceof ReflectionFunction
+            ? $invokable
+            : $this->generateInvocationMethod($invokable, $reflection, $new);
 
-        return (is_string($invokable) ? $invokable : $this->generateInvocationMethod($invokable, $reflection, $new))
-            . '(' . $this->generateInvocationArgs($reflection, $genArg) . ')';
+        return $call . '(' . $this->generateInvocationArgs($reflection, $genArg) . ')';
     }
 
     /**
      * Generate the code for a method call.
      *
-     * @param callable&array    $invokable
-     * @param ReflectionMethod  $reflection
-     * @param string            $new         PHP code to instantiate class.
+     * @param array|string     $invokable
+     * @param ReflectionMethod $reflection
+     * @param string           $new         PHP code to instantiate class.
      * @return string
      */
     protected function generateInvocationMethod(
-        array $invokable,
+        $invokable,
         ReflectionMethod $reflection,
         string $new = '(new \\%s)'
     ): string {
-        return $invokable[1] === '__invoke'
+        if (is_string($invokable) && strpos($invokable, '::') !== false) {
+            $invokable = explode('::', $invokable) + ['', ''];
+        }
+
+        return $invokable[1] === '__invoke' || $invokable[1] === ''
             ? sprintf($new, $invokable[0])
             : ($reflection->isStatic() ? "{$invokable[0]}::" : sprintf($new, $invokable[0]) . "->") . $invokable[1];
     }
@@ -120,11 +120,11 @@ class Invoker implements InvokerInterface
     {
         $valid = is_callable($invokable, true) && (
             (
-                is_string($invokable) && preg_match('/^[a-z_]\w*(\\\\\w+)*(::[a-z_]\w*)?$/i', $invokable)
+                is_string($invokable) && Regex::match('/^[a-z_]\w*(\\\\\w+)*(::[a-z_]\w*)?$/i', $invokable)->hasMatch()
             ) || (
                 is_array($invokable) &&
-                is_string($invokable[0]) && preg_match('/^[a-z_]\w*(\\\\\w+)*$/i', $invokable[0]) &&
-                preg_match('/^[a-z_]\w*$/i', $invokable[1])
+                is_string($invokable[0]) && Regex::match('/^[a-z_]\w*(\\\\\w+)*$/i', $invokable[0])->hasMatch() &&
+                Regex::match('/^[a-z_]\w*$/i', $invokable[1])->hasMatch()
             )
         );
 
@@ -141,7 +141,7 @@ class Invoker implements InvokerInterface
             $type = is_object($invokable) ? get_class($invokable) : gettype($invokable);
         }
 
-        throw new LogicException("Invokable should be a function or array with class name and method, {$type} given");
+        throw new \LogicException("Invokable should be a function or array with class name and method, {$type} given");
     }
 
     /**
@@ -153,6 +153,10 @@ class Invoker implements InvokerInterface
      */
     protected function getReflection($invokable): ReflectionFunctionAbstract
     {
+        if (is_string($invokable) && strpos($invokable, '::') !== false) {
+            $invokable = explode('::', $invokable);
+        }
+
         return is_array($invokable)
             ? $this->reflection->reflectMethod($invokable[0], $invokable[1])
             : $this->reflection->reflectFunction($invokable);
@@ -187,7 +191,7 @@ CODE;
     final public static function createInvokable(?string $controller, ?string $action): array
     {
         if ($controller === null && $action === null) {
-            throw new BadMethodCallException("Neither controller or action is set");
+            throw new \BadMethodCallException("Neither controller or action is set");
         }
 
         [$class, $method] = $controller !== null

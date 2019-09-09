@@ -51,16 +51,31 @@ class InvokerTest extends TestCase
     public function invokableProvider()
     {
         return [
-            ['foo', 'to-do', ['FooController', 'toDoAction'], "(new FooController)->toDoAction(%s)"],
-            ['to-do', null, ['ToDoController', 'defaultAction'], "(new ToDoController)->defaultAction(%s)"],
-            [null, 'qux', ['QuxAction', '__invoke'], "(new QuxAction)(%s)"],
+            "controller:foo action:to-do" => [
+                'foo',
+                'to-do',
+                ['FooController', 'toDoAction'],
+                "(new FooController)->toDoAction(%s)"
+            ],
+            "controller:to-do" => [
+                'to-do',
+                null,
+                ['ToDoController', 'defaultAction'],
+                "(new ToDoController)->defaultAction(%s)"
+            ],
+            "action:qux" =>[
+                null,
+                'qux',
+                ['QuxAction', '__invoke'],
+                "(new QuxAction)(%s)"
+            ],
         ];
     }
 
     /**
      * @dataProvider invokableProvider
      */
-    public function test($controller, $action, $invokable, $expected)
+    public function testGenerate($controller, $action, $invokable, $expected)
     {
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
         $genArg = $this->createCallbackMock($this->never());
@@ -74,7 +89,7 @@ class InvokerTest extends TestCase
     /**
      * @dataProvider invokableProvider
      */
-    public function testNoNullKeys($controller, $action, $invokable, $expected)
+    public function testGenerateWithoutNullKeys($controller, $action, $invokable, $expected)
     {
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
         $genArg = $this->createCallbackMock($this->never());
@@ -88,7 +103,7 @@ class InvokerTest extends TestCase
     /**
      * @dataProvider invokableProvider
      */
-    public function testWithArguments($controller, $action, $invokable, $expected)
+    public function testGenerateWithArguments($controller, $action, $invokable, $expected)
     {
         $expectedCode = sprintf($expected, "\$var['id'] ?? NULL, \$var['some'] ?? NULL, \$var['good'] ?? 'ok'");
 
@@ -122,7 +137,7 @@ class InvokerTest extends TestCase
         $this->assertEquals($expectedCode, $code);
     }
 
-    public function testOfStaticMethod()
+    public function testGenerateOfStaticMethod()
     {
         $parameters = [
             $this->createConfiguredMock(ReflectionParameter::class, ['getName' => 'id', 'isOptional' => false]),
@@ -140,7 +155,7 @@ class InvokerTest extends TestCase
     /**
      * @dataProvider invokableProvider
      */
-    public function testWithCustomClassName($controller, $action, $invokable, $expected)
+    public function testGenerateWithCustomClassName($controller, $action, $invokable, $expected)
     {
         $invokable[0] = 'App\\Generated\\' . $invokable[0];
         $expected = str_replace('new ', 'new App\\Generated\\', $expected);
@@ -163,7 +178,7 @@ class InvokerTest extends TestCase
         $this->assertEquals(sprintf($expected, ''), $code);
     }
 
-    public function testWithFunction()
+    public function testGenerateWithFunction()
     {
         $parameters = [
             $this->createConfiguredMock(ReflectionParameter::class, ['getName' => 'id', 'isOptional' => false]),
@@ -189,7 +204,7 @@ class InvokerTest extends TestCase
         $this->assertEquals("foo_todo(\$var['id'] ?? NULL)", $code);
     }
 
-    public function testWithMethodString()
+    public function testGenerateWithMethodString()
     {
         $parameters = [
             $this->createConfiguredMock(ReflectionParameter::class, ['getName' => 'id', 'isOptional' => false]),
@@ -212,20 +227,20 @@ class InvokerTest extends TestCase
         };
 
         return [
-            [42, 'integer'],
-            [$closure, 'Closure'],
-            [[42, 'hello'], '[integer, string]'],
-            [[new \stdClass(), 'foo'], '[stdClass, string]'],
-            [['foo', 'bar', 'qux'], '[string, string, string]'],
-            ['foo::bar::zoo', 'string'],
-            [['foo\\bar\\zoo', 'foo\\roo'], '[string, string]'],
+            '(int)42' => [42, 'integer'],
+            'Closure' => [$closure, 'Closure'],
+            "[42, 'hello']" => [[42, 'hello'], '[integer, string]'],
+            "[stdClass, 'foo']" => [[new \stdClass(), 'foo'], '[stdClass, string]'],
+            "['foo', 'bar', 'qux']" => [['foo', 'bar', 'qux'], '[string, string, string]'],
+            "foo::bar::zoo" => ['foo::bar::zoo', 'string'],
+            "['foo\\bar\\zoo', 'foo\\roo']" => [['foo\\bar\\zoo', 'foo\\roo'], '[string, string]'],
         ];
     }
 
     /**
      * @dataProvider invalidInvokerProvider
      */
-    public function testWithInvalidInvoker($invoker, $type)
+    public function testGenerateWithInvalidInvoker($invoker, $type)
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Invokable should be a function or array with class name and method, "
@@ -243,7 +258,7 @@ class InvokerTest extends TestCase
         $invoker->generateInvocation(['controller' => 'foo', 'action' => 'to-do'], $genArg);
     }
 
-    public function testWithNeitherControllerOrAction()
+    public function testGenerateWithNeitherControllerOrAction()
     {
         $this->expectException(BadMethodCallException::class);
         $this->expectExceptionMessage("Neither controller or action is set");

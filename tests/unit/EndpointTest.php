@@ -28,9 +28,9 @@ class EndpointTest extends TestCase
     public function methodProvider()
     {
         return [
-            ['GET', 'POST', 'PATCH'],
-            ['get', 'post', 'patch'],
-            ['Get', 'Post', 'Patch'],
+            'upper case' => ['GET', 'POST', 'PATCH'],
+            'lower case' => ['get', 'post', 'patch'],
+            'mixed case' => ['Get', 'Post', 'Patch'],
         ];
     }
 

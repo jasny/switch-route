@@ -44,15 +44,15 @@ class GenerateInvokeMiddlewareTest extends TestCase
     public function serverRequestProvider()
     {
         return [
-            [ServerRequestInterface::class],
-            [ServerRequest::class],
+            ServerRequestInterface::class => [ServerRequestInterface::class],
+            ServerRequest::class => [ServerRequest::class],
         ];
     }
 
     /**
      * @dataProvider serverRequestProvider
      */
-    public function test(string $serverRequestClass)
+    public function testGenerate(string $serverRequestClass)
     {
         $routes = $this->getRoutes();
         $routeArgs = $this->getRouteArgs();
@@ -76,7 +76,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testWithInvalidRoute()
+    public function testInvalidRoute()
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Route for 'GET /*' should specify 'include', 'controller', or 'action'");
@@ -92,7 +92,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
         $generate('', $routes, $structure);
     }
 
-    public function testWithReflectionException()
+    public function testReflectionException()
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Invalid route for 'GET /*'. Can't call info()");

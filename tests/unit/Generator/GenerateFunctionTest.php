@@ -45,7 +45,7 @@ class GenerateFunctionTest extends TestCase
         return $routeArgs;
     }
 
-    public function test()
+    public function testGenerate()
     {
         $routes = $this->getRoutes();
         $routeArgs = $this->getRouteArgs();
@@ -68,7 +68,7 @@ class GenerateFunctionTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testDefault()
+    public function testGenerateDefaultRoute()
     {
         $routes = ['GET /' => ['controller' => 'info']];
         $structure = ["\0" => (new Endpoint('/'))->withRoute('GET', ['controller' => 'info'], [])];
@@ -87,7 +87,7 @@ class GenerateFunctionTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testAllVars()
+    public function testGenerateWithAllVars()
     {
         $routes = ['GET /{foo}/{bar}/{qux}' => ['controller' => 'info']];
         $vars = ['foo' => 0, 'bar' => 1, 'qux' => 2];
@@ -112,7 +112,7 @@ class GenerateFunctionTest extends TestCase
         $this->assertEquals($expected, $code);
     }
 
-    public function testWithInvalidRoute()
+    public function testInvalidRoute()
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Route for 'GET /*' should specify 'include', 'controller', or 'action'");
@@ -128,7 +128,7 @@ class GenerateFunctionTest extends TestCase
         $generate('', $routes, $structure);
     }
 
-    public function testWithReflectionException()
+    public function testReflectionException()
     {
         $this->expectException(InvalidRouteException::class);
         $this->expectExceptionMessage("Invalid route for 'GET /*'. Can't call info()");

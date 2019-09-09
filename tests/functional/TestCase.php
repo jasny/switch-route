@@ -48,30 +48,30 @@ abstract class TestCase extends Base
     public function provider()
     {
         return [
-            ['GET', '/', "Some information"],
+            'GET    /'                => ['GET', '/', "Some information"],
 
-            ['GET', '/users', array_values($this->users)],
-            ['POST', '/users', "added user"],
-            ['GET', '/users/1', $this->users[1]],
-            ['GET', '/users/2', $this->users[2]],
-            ['POST', '/users/1', "updated user '1'"],
-            ['PUT', '/users/1', "updated user '1'"],
-            ['DELETE', '/users/2', "deleted user '2'"],
+            'GET    /users'           => ['GET', '/users', array_values($this->users)],
+            'POST   /users'           => ['POST', '/users', "added user"],
+            'GET    /users/1'         => ['GET', '/users/1', $this->users[1]],
+            'GET    /users/2'         => ['GET', '/users/2', $this->users[2]],
+            'POST   /users/1'         => ['POST', '/users/1', "updated user '1'"],
+            'PUT    /users/1'         => ['PUT', '/users/1', "updated user '1'"],
+            'DELETE /users/1'         => ['DELETE', '/users/2', "deleted user '2'"],
 
-            ['GET', '/users/1/photos', $this->photos[1]],
-            ['GET', '/users/2/photos', $this->photos[2]],
-            ['POST', '/users/1/photos', "added photos for user 1"],
+            'GET    /users/1/photos'  => ['GET', '/users/1/photos', $this->photos[1]],
+            'GET    /users/2/photos'  => ['GET', '/users/2/photos', $this->photos[2]],
+            'POST   /users/1/photos'  => ['POST', '/users/1/photos', "added photos for user 1"],
 
-            ['POST', '/export', ['data', 'export']],
+            'POST   /export'          => ['POST', '/export', ['data', 'export']],
 
-            ['POST', '/foo', "404 Not Found", 404],
-            ['DELETE', '/users', "405 Method Not Allowed (GET, POST)", 405],
-            ['PATCH', '/users/1', "405 Method Not Allowed (GET, POST, PUT, DELETE)", 405],
+            'POST   /foo (404)'       => ['POST', '/foo', "404 Not Found", 404],
+            'DELETE /users (405)'     => ['DELETE', '/users', "405 Method Not Allowed (GET, POST)", 405],
+            'PATCH  /users/1 (405)'   => ['PATCH', '/users/1', "405 Method Not Allowed (GET, POST, PUT, DELETE)", 405],
 
             // Test with trailing slash
-            ['GET', '/users/', array_values($this->users)],
-            ['GET', '/users/2/', $this->users[2]],
-            ['GET', '/users/2/photos/', $this->photos[2]],
+            'GET    /users/'          => ['GET', '/users/', array_values($this->users)],
+            'GET    /users/2/'        => ['GET', '/users/2/', $this->users[2]],
+            'GET    /users/2/photos/' => ['GET', '/users/2/photos/', $this->photos[2]],
         ];
     }
 }
