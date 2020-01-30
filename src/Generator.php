@@ -14,9 +14,6 @@ class Generator
 {
     private const DIR_MODE = 0755;
 
-    /**
-     * @var callable
-     */
     protected $generateCode;
 
 
