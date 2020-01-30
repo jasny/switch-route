@@ -71,8 +71,7 @@ class {$class} implements MiddlewareInterface
     protected \$instantiate;
 
     /**
-     * @param ResponseFactoryInterface \$responseFactory  Used for default not-found response.
-     * @param callable                 \$instantiate      Instantiate controller / action classes.
+     * @param callable \$instantiate  Instantiate controller / action classes.
      */
     public function __construct(?callable \$instantiate = null)
     {
