@@ -25,7 +25,9 @@
     "require-dev": {
         "ext-json": "*",
         "infection/infection": "^0.13.5",
-        "jasny/php-code-quality": "^2.5",
+        "jasny/php-code-quality": "2.5.*",
+        "phpstan/phpstan": "0.11.*",
+        "phpunit/phpunit": "7.*",
         "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0",
         "roave/backward-compatibility-check": "^3.0"
