@@ -3,7 +3,7 @@
 SwitchRoute
 ===
 
-[![Build Status](https://travis-ci.org/jasny/switch-route.svg?branch=master)](https://travis-ci.org/jasny/switch-route)
+[![Build Status](https://github.com/jasny/switch-route/actions/workflows/php.yml/badge.svg)](https://github.com/jasny/switch-route/actions/workflows/php.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/jasny/switch-route/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/jasny/switch-route/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/jasny/switch-route/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/jasny/switch-route/?branch=master)
 [![Infection MSI](https://badge.stryker-mutator.io/github.com/jasny/switch-route/master)](https://infection.github.io)
