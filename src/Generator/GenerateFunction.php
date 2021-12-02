@@ -77,7 +77,7 @@ CODE;
      */
     protected function generateEndpoint(Endpoint $endpoint): string
     {
-        $exportValue = function ($var) {
+        $exportValue = function ($var): string {
             return var_export($var, true);
         };
 
@@ -109,7 +109,7 @@ CODE;
         }
 
         try {
-            $genArg = $genArg ?? function (?string $name, ?string $type = null, $default = null) use ($vars) {
+            $genArg = $genArg ?? function (?string $name, ?string $type = null, $default = null) use ($vars): string {
                 return $this->genArg($vars, $name, $type, $default);
             };
             $new = '(isset($instantiate) ? ($instantiate)(\'%1$s\') : new \\%1$s)';

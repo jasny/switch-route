@@ -79,7 +79,7 @@ CODE;
      */
     protected function generateEndpoint(Endpoint $endpoint): string
     {
-        $exportValue = function ($var) {
+        $exportValue = function ($var): string {
             return var_export($var, true);
         };
         $methods = join(', ', array_map($exportValue, $endpoint->getAllowedMethods()));

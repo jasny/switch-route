@@ -7,7 +7,7 @@ namespace Jasny\SwitchRoute\Tests;
 use BadMethodCallException;
 use Jasny\ReflectionFactory\ReflectionFactory;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\TestHelper;
+use Jasny\PHPUnit\CallbackMockTrait;
 use LogicException;
 use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -23,7 +23,7 @@ use ReflectionType;
  */
 class InvokerTest extends TestCase
 {
-    use TestHelper;
+    use CallbackMockTrait;
 
     /**
      * Create reflection factory that will return a ReflectionMethod.

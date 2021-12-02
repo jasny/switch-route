@@ -7,7 +7,6 @@ namespace Jasny\SwitchRoute\Tests;
 use Exception;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\InvalidRouteException;
-use Jasny\TestHelper;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
@@ -16,8 +15,6 @@ use PHPUnit\Framework\TestCase;
  */
 class EndpointTest extends TestCase
 {
-    use TestHelper;
-
     public function testGetPath()
     {
         $endpoint = new Endpoint('/users/*');

@@ -25,6 +25,7 @@
     "require-dev": {
         "ext-json": "*",
         "jasny/php-code-quality": "~2.7.0",
+        "jasny/phpunit-extension": "~0.3.2",
         "phpstan/phpstan": "~0.12.0",
         "phpunit/phpunit": "^9.0",
         "nyholm/psr7": "^1.1",
@@ -48,7 +49,6 @@
         "test": [
             "phpstan analyse",
             "phpunit --testdox --colors=always",
-            "infection --min-msi=95 --min-covered-msi=95 --only-covered --no-progress --no-interaction --threads=4 --ansi",
             "phpcs -p src"
         ]
     },

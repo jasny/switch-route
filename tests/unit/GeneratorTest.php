@@ -6,7 +6,7 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\InvalidRouteException;
-use Jasny\TestHelper;
+use Jasny\PHPUnit\CallbackMockTrait;
 use LogicException;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -18,7 +18,7 @@ use RuntimeException;
  */
 class GeneratorTest extends TestCase
 {
-    use TestHelper;
+    use CallbackMockTrait;
     use RoutesTrait;
 
     /**
@@ -147,7 +147,6 @@ class GeneratorTest extends TestCase
     public function testGenerateCreateFileFailure()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("file_put_contents(vfs://tmp/generated/routes.php): failed to open stream");
 
         vfsStream::newDirectory('generated', 00)->at($this->root);
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\NoInvoker;
-use Jasny\TestHelper;
+use Jasny\PHPUnit\CallbackMockTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class NoInvokerTest extends TestCase
 {
-    use TestHelper;
+    use CallbackMockTrait;
 
     public function testGenerateInvocation()
     {

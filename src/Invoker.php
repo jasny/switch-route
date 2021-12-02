@@ -133,7 +133,7 @@ class Invoker implements InvokerInterface
         }
 
         if (is_array($invokable)) {
-            $types = array_map(static function ($item) {
+            $types = array_map(static function ($item): string {
                 return is_object($item) ? get_class($item) : gettype($item);
             }, $invokable);
             $type = '[' . join(', ', $types) . ']';
