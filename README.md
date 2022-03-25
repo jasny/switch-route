@@ -17,7 +17,7 @@ all routes to a single regexp. **SwitchRoute** abandons this completely, opting 
 instead.
 
 Processing the routes to produce the switch statements isn't particularly fast. However, the generation only need to
-happen when the routes change. Routing using the generated switch statements is up to 2x faster than with FastRoute
+happen once, not on every request. Routing using the generated switch statements is up to 2x faster than with FastRoute
 using caching and up to 100x faster than any router not using caching.
 
 ```
