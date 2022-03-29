@@ -65,7 +65,7 @@ class NotFoundMiddleware implements MiddlewareInterface
     {
         try {
             return $handler->handle($request);
-        } catch (NotFoundException $exception) {
+        } catch (NotFound $exception) {
             return $this->notFound($request);
         }
     }

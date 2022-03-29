@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
-use Jasny\SwitchRoute\NotFoundException;
+use Jasny\SwitchRoute\NotFound;
 use Jasny\SwitchRoute\NotFoundMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -61,7 +61,7 @@ class NotFoundMiddlewareTest extends TestCase
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects($this->once())->method('handle')
             ->with($this->identicalTo($request))
-            ->willThrowException(new NotFoundException('no route'));
+            ->willThrowException(new NotFound('no route'));
 
         $middleware = new NotFoundMiddleware($responseFactory);
 
@@ -96,7 +96,7 @@ class NotFoundMiddlewareTest extends TestCase
         $handler = $this->createMock(RequestHandlerInterface::class);
         $handler->expects($this->once())->method('handle')
             ->with($this->identicalTo($request))
-            ->willThrowException(new NotFoundException('no route'));
+            ->willThrowException(new NotFound('no route'));
 
         $middleware = new NotFoundMiddleware($responseFactory);
 

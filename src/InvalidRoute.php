@@ -9,6 +9,6 @@ use LogicException;
 /**
  * Exception for issues with route configuration.
  */
-class InvalidRouteException extends LogicException
+class InvalidRoute extends LogicException
 {
 }

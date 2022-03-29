@@ -7,7 +7,7 @@ namespace Jasny\SwitchRoute\Tests\Generator;
 use Closure;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
 use PHPUnit\Framework\TestCase;
@@ -135,7 +135,7 @@ class GenerateFunctionTest extends TestCase
 
     public function testInvalidRoute()
     {
-        $this->expectException(InvalidRouteException::class);
+        $this->expectException(InvalidRoute::class);
         $this->expectExceptionMessage("Route for 'GET /*' should specify 'include', 'controller', or 'action'");
 
         $routes = ['GET /{id}' => ['foo' => 'bar']];
@@ -151,7 +151,7 @@ class GenerateFunctionTest extends TestCase
 
     public function testReflectionException()
     {
-        $this->expectException(InvalidRouteException::class);
+        $this->expectException(InvalidRoute::class);
         $this->expectExceptionMessage("Invalid route for 'GET /*'. Can't call info()");
         $this->expectExceptionCode(0);
 

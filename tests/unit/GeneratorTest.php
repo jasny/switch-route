@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\Generator;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use Jasny\PHPUnit\CallbackMockTrait;
 use LogicException;
 use org\bovigo\vfs\vfsStream;
@@ -91,7 +91,7 @@ class GeneratorTest extends TestCase
 
     public function testGenerateWithInvalidRoute()
     {
-        $this->expectException(InvalidRouteException::class);
+        $this->expectException(InvalidRoute::class);
         $this->expectExceptionMessage("Invalid routing key '/foo': should be 'METHOD /path'");
 
         $routes = [

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\Endpoint;
+use Jasny\SwitchRoute\Routes;
 
 trait RoutesTrait
 {
-    protected function getRoutes(): array
+    protected function getRoutes(): Routes
     {
-        return [
+        return new Routes([
             '  GET    /  '                => ['controller' => 'InfoController'],
 
             'GET      /users'             => ['controller' => 'UserController', 'action' => 'listAction'],
@@ -25,7 +26,7 @@ trait RoutesTrait
 
             'GET      /users/{id}/photos' => ['action' => 'ListPhotosAction'],
             'POST     /users/{id}/photos' => ['action' => 'AddPhotosAction'],
-        ];
+        ]);
     }
 
     protected function getStructure(): array

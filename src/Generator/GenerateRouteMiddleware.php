@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Generator;
 
 use Jasny\SwitchRoute\Endpoint;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
+use Jasny\SwitchRoute\Routes;
 
 /**
  * Generate a route middleware that sets server request attributes.
@@ -15,13 +16,14 @@ class GenerateRouteMiddleware extends AbstractGenerate
     /**
      * Invoke code generation.
      *
-     * @param string $name      Class name
-     * @param array  $routes    Ignored
-     * @param array  $structure
+     * @param string $name    Class name
+     * @param Routes $routes
      * @return string
      */
-    public function __invoke(string $name, array $routes, array $structure): string
+    public function __invoke(string $name, Routes $routes): string
     {
+        $structure = $routes->structure();
+
         $default = $structure["\e"] ?? null;
         unset($structure["\e"]);
 
@@ -95,7 +97,7 @@ CODE;
      * @param array  $route
      * @param array  $vars
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     protected function generateRoute(string $_, array $route, array $vars): string
     {
@@ -119,7 +121,7 @@ CODE;
      *
      * @param Endpoint|null $endpoint
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     protected function generateDefault(?Endpoint $endpoint): string
     {

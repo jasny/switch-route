@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Jasny\SwitchRoute\NotFoundException;
+use Jasny\SwitchRoute\NotFound;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -76,6 +76,6 @@ class InvokeMiddleware implements MiddlewareInterface
                 break;
         }
 
-        throw new NotFoundException("No default route specified");
+        throw new NotFound("No default route specified");
     }
 }

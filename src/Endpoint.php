@@ -12,20 +12,10 @@ use OutOfBoundsException;
  */
 final class Endpoint
 {
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var array[]
-     */
-    protected $routes = [];
-
-    /**
-     * @var array[]
-     */
-    protected $vars = [];
+    protected string $path;
+    /** @var array[] */
+    protected array $routes = [];
+    protected array $vars = [];
 
 
     /**
@@ -51,7 +41,7 @@ final class Endpoint
         $method = strtoupper($method);
 
         if (isset($this->routes[$method])) {
-            throw new InvalidRouteException("Duplicate route for '$method {$this->path}'");
+            throw new InvalidRoute("Duplicate route for '$method {$this->path}'");
         }
 
         $copy = clone $this;

@@ -9,6 +9,6 @@ use RuntimeException;
 /**
  * Exception thrown if no route is found and there is no default route specified.
  */
-class NotFoundException extends RuntimeException
+class NotFound extends RuntimeException
 {
 }

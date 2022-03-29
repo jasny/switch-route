@@ -6,7 +6,7 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Exception;
 use Jasny\SwitchRoute\Endpoint;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
@@ -54,7 +54,7 @@ class EndpointTest extends TestCase
      */
     public function testWithRouteWithDuplicateMethod($method)
     {
-        $this->expectException(InvalidRouteException::class);
+        $this->expectException(InvalidRoute::class);
         $this->expectExceptionMessage("Duplicate route for 'GET /users/*'");
 
         (new Endpoint('/users/*'))

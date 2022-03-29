@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Generator;
 
 use Jasny\SwitchRoute\Endpoint;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
+use Jasny\SwitchRoute\Routes;
 
 /**
  * Base class for switch script generation.
@@ -13,13 +14,22 @@ use Jasny\SwitchRoute\InvalidRouteException;
 abstract class AbstractGenerate
 {
     /**
+     * Invoke code generation.
+     *
+     * @param string $name
+     * @param Routes $routes
+     * @return string
+     */
+    abstract public function __invoke(string $name, Routes $routes): string;
+
+    /**
      * Generate routing code for an endpoint.
      *
      * @param string $key
      * @param array  $route
      * @param array  $vars
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     abstract protected function generateRoute(string $key, array $route, array $vars): string;
 

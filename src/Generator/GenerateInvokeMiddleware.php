@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Generator;
 
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\InvokerInterface;
+use Jasny\SwitchRoute\Routes;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 
@@ -33,12 +34,11 @@ class GenerateInvokeMiddleware extends AbstractGenerate
     /**
      * Invoke code generation.
      *
-     * @param string $name      Class name
-     * @param array  $routes    Ignored
-     * @param array  $structure
+     * @param string $name    Class name
+     * @param Routes $routes
      * @return string
      */
-    public function __invoke(string $name, array $routes, array $structure): string
+    public function __invoke(string $name, Routes $routes): string
     {
         $invokeCode = self::indent($this->generateSwitchFromRoutes($routes), 8)
             . (!isset($structure["\e"]) ? "\n\n" . '$this->notFound($request);' : '');
@@ -50,7 +50,7 @@ class GenerateInvokeMiddleware extends AbstractGenerate
 
 declare(strict_types=1);
 {$namespace}
-use Jasny\SwitchRoute\NotFoundException;
+use Jasny\SwitchRoute\NotFound;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -93,7 +93,7 @@ class {$class} implements MiddlewareInterface
 
 {$invokeCode}
 
-        throw new NotFoundException("No default route specified");
+        throw new NotFound("No default route specified");
     }
 }
 CODE;
@@ -102,10 +102,10 @@ CODE;
     /**
      * Generate the PHP script with a switch for routing.
      *
-     * @param array $routes
+     * @param Routes $routes
      * @return string
      */
-    protected function generateSwitchFromRoutes(array $routes): string
+    protected function generateSwitchFromRoutes(Routes $routes): string
     {
         $grouped = $this->groupRoutes($routes);
         $grouped[''][''] = null;
@@ -140,10 +140,10 @@ CODE;
     /**
      * Group routes by controller name.
      *
-     * @param array[] $routes
+     * @param Routes $routes
      * @return array
      */
-    protected function groupRoutes(array $routes): array
+    protected function groupRoutes(Routes $routes): array
     {
         $grouped = [];
 
@@ -154,7 +154,7 @@ CODE;
 
             if (!isset($route['controller']) && !isset($route['action'])) {
                 $key = preg_replace('/{.*?}/', '*', $key);
-                throw new InvalidRouteException("Route for '$key' should specify 'include', 'controller', " .
+                throw new InvalidRoute("Route for '$key' should specify 'include', 'controller', " .
                     "or 'action'");
             }
 
@@ -176,7 +176,7 @@ CODE;
      * @param array  $route
      * @param array  $vars
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     protected function generateRoute(string $key, array $route, array $vars): string
     {
@@ -195,7 +195,7 @@ CODE;
             );
         } catch (ReflectionException $exception) {
             $key = preg_replace('/{.*?}/', '*', $key);
-            throw new InvalidRouteException("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
+            throw new InvalidRoute("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
         }
 
         return "return $invocation;";

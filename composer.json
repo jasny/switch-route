@@ -15,7 +15,7 @@
         "source": "https://github.com/jasny/switch-route"
     },
     "require": {
-        "php": "^7.2.0 || ^8.0",
+        "php": ">= 7.4",
         "jasny/reflection-factory": "^1.1.1",
         "psr/http-factory": "^1.0",
         "psr/http-message": "^1.0",

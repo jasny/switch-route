@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Generator;
 
 use Jasny\SwitchRoute\Endpoint;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\InvokerInterface;
+use Jasny\SwitchRoute\Routes;
 use ReflectionException;
 
 /**
@@ -33,13 +34,14 @@ class GenerateFunction extends AbstractGenerate
     /**
      * Invoke code generation.
      *
-     * @param string $name       Function name
-     * @param array  $routes     Ignored
-     * @param array  $structure
+     * @param string $name    Function name
+     * @param Routes $routes
      * @return string
      */
-    public function __invoke(string $name, array $routes, array $structure): string
+    public function __invoke(string $name, Routes $routes): string
     {
+        $structure = $routes->structure();
+
         $default = $structure["\e"] ?? null;
         unset($structure["\e"]);
 
@@ -95,12 +97,12 @@ CODE;
      * @param array         $vars
      * @param callable|null $genArg
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     protected function generateRoute(string $key, array $route, array $vars, ?callable $genArg = null): string
     {
         if (!isset($route['include']) && !isset($route['controller']) && !isset($route['action'])) {
-            throw new InvalidRouteException("Route for '$key' should specify 'include', 'controller', " .
+            throw new InvalidRoute("Route for '$key' should specify 'include', 'controller', " .
                 "or 'action'");
         }
 
@@ -116,7 +118,7 @@ CODE;
 
             $invocation = $this->invoker->generateInvocation($route, $genArg, $new);
         } catch (ReflectionException $exception) {
-            throw new InvalidRouteException("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
+            throw new InvalidRoute("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
         }
 
         return "return $invocation;";
@@ -127,7 +129,7 @@ CODE;
      *
      * @param Endpoint|null $endpoint
      * @return string
-     * @throws InvalidRouteException
+     * @throws InvalidRoute
      */
     protected function generateDefault(?Endpoint $endpoint): string
     {

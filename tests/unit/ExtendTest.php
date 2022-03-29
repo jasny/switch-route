@@ -11,10 +11,11 @@ use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\Generator\GenerateRouteMiddleware;
-use Jasny\SwitchRoute\InvalidRouteException;
+use Jasny\SwitchRoute\InvalidRoute;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\InvokerInterface;
 use Jasny\SwitchRoute\NotFoundMiddleware;
+use Jasny\SwitchRoute\Routes;
 use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -153,7 +154,7 @@ class ExtendTest extends TestCase
         /** generateRoute */
         try {
             $extendedGenerateFunction->callGenerateRoute('POST /path', ['controller' => 'Dummy'], [], null);
-        } catch (InvalidRouteException $exception) {
+        } catch (InvalidRoute $exception) {
             $this->assertTrue(true);
         } catch (Exception $exception) {
             $this->assertTrue(false, $exception->getMessage());
@@ -187,7 +188,7 @@ class ExtendTest extends TestCase
         /** generateRoute  */
         try {
             $extendedGenerateInvokeMiddleware->callGenerateRoute('POST /path', ['controller' => 'Dummy'], []);
-        } catch (InvalidRouteException $exception) {
+        } catch (InvalidRoute $exception) {
             $this->assertTrue(true);
         } catch (Exception $exception) {
             $this->assertTrue(false, $exception->getMessage());
@@ -202,11 +203,11 @@ class ExtendTest extends TestCase
         /** groupRoutes */
         $this->assertSame(
             [],
-            $extendedGenerateInvokeMiddleware->callGroupRoutes([])
+            $extendedGenerateInvokeMiddleware->callGroupRoutes(new Routes())
         );
 
         /** generateSwitchFromRoutes */
-        $this->assertNotEmpty($extendedGenerateInvokeMiddleware->callGenerateSwitchFromRoutes([]));
+        $this->assertNotEmpty($extendedGenerateInvokeMiddleware->callGenerateSwitchFromRoutes(new Routes()));
 
         /** invokerProperty */
         $this->assertInstanceOf(InvokerInterface::class, $extendedGenerateInvokeMiddleware->getInvokerProperty());
@@ -333,12 +334,12 @@ class ExtendTest extends TestCase
                 return $this->generateEndpoint($endpoint);
             }
 
-            public function callGroupRoutes(array $routes): array
+            public function callGroupRoutes(Routes $routes): array
             {
                 return $this->groupRoutes($routes);
             }
 
-            public function callGenerateSwitchFromRoutes(array $routes): string
+            public function callGenerateSwitchFromRoutes(Routes $routes): string
             {
                 return $this->generateSwitchFromRoutes($routes);
             }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute;
 
+use UnexpectedValueException;
+use Jasny\SwitchRoute\Generator\AbstractGenerate;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
-use Spatie\Regex\Regex;
 
 /**
  * Generate a PHP script for HTTP routing.
@@ -15,7 +16,7 @@ class Generator
     private const DIR_MODE = 0755;
 
     /**
-     * @var callable
+     * @var callable|AbstractGenerate
      */
     protected $generateCode;
 
@@ -33,41 +34,61 @@ class Generator
     /**
      * Generate a switch script based on the routes.
      *
-     * @param string   $name       Class or function name that should be generated.
-     * @param string   $file       Filename to store the script.
-     * @param callable $getRoutes  Callback to get an array with the routes.
-     * @param bool     $overwrite  Overwrite existing file.
+     * @param string   $name            Class or function name that should be generated.
+     * @param string   $file            Filename to store the script.
+     * @param callable $routesCallback  Callback to get an array with the routes.
+     * @param bool     $overwrite       Overwrite existing file.
      * @throws \RuntimeException if file could not be created.
      */
-    public function generate(string $name, string $file, callable $getRoutes, bool $overwrite): void
+    public function generate(string $name, string $file, callable $routesCallback, bool $overwrite): void
     {
         if (!$overwrite && $this->scriptExists($file)) {
             return;
         }
 
-        $routes = $getRoutes();
-        $structure = $this->structureEndpoints($routes);
+        $routes = $this->loadRoutes($routesCallback);
 
-        $code = ($this->generateCode)($name, $routes, $structure);
+        $code = ($this->generateCode)($name, $routes);
         if (!is_string($code)) {
             throw new \LogicException("Expected code as string, got " . gettype($code));
         }
 
         if (!is_dir(dirname($file))) {
-            $this->tryFs('mkdir', dirname($file), self::DIR_MODE, true);
+            $this->tryFs(fn() => mkdir(dirname($file), self::DIR_MODE, true));
         }
 
-        $this->tryFs('file_put_contents', $file, $code);
+        $this->tryFs(fn() => file_put_contents($file, $code));
+    }
+
+    /**
+     * Load the routes via the callback
+     *
+     * @param callable $callback
+     * @return Routes
+     */
+    public function loadRoutes(callable $callback): Routes
+    {
+        $routes = new Routes();
+        $ret = $callback($routes);
+
+        if (!isset($ret)) {
+            // Callback configured routes
+        } elseif (!is_iterable($ret)) {
+            throw new UnexpectedValueException("Callback to get routes didn't return an array");
+        } else {
+            $routes->add($ret);
+        }
+
+        return $routes;
     }
 
     /**
      * Try a file system function and throw a \RuntimeException on failure.
      *
      * @param callable $fn
-     * @param mixed    ...$args
      * @return mixed
      */
-    protected function tryFs(callable $fn, ...$args)
+    protected function tryFs(callable $fn)
     {
         $level = error_reporting();
         error_reporting($level ^ (E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE));
@@ -75,7 +96,7 @@ class Generator
         error_clear_last();
 
         try {
-            $ret = $fn(...$args);
+            $ret = $fn();
         } finally {
             error_reporting($level);
         }
@@ -101,76 +122,5 @@ class Generator
         /** @noinspection PhpComposerExtensionStubsInspection */
         return (function_exists('opcache_is_script_cached') && opcache_is_script_cached($file))
             || file_exists($file);
-    }
-
-    /**
-     * Create a structure with a leaf for each endpoint.
-     *
-     * @param iterable $routes
-     * @return array
-     * @throws InvalidRouteException
-     */
-    protected function structureEndpoints(iterable $routes): array
-    {
-        $structure = [];
-
-        foreach ($routes as $key => $route) {
-            if ($key === 'default') {
-                $structure["\e"] = (new Endpoint(''))->withRoute('', $route, []);
-                continue;
-            }
-
-            $match = Regex::match('~^\s*(?P<methods>\w+(?:\|\w+)*)\s+(?P<path>/\S*)\s*$~', $key);
-
-            if (!is_string($key) || !$match->hasMatch()) {
-                throw new InvalidRouteException("Invalid routing key '$key': should be 'METHOD /path'");
-            }
-
-            $methods = $match->namedGroup('methods');
-            [$segments, $vars] = $this->splitPath($match->namedGroup('path'));
-
-            $pointer =& $structure;
-            foreach ($segments as $segment) {
-                $pointer[$segment] = $pointer[$segment] ?? [];
-                $pointer =& $pointer[$segment];
-            }
-
-            if (!isset($pointer["\0"])) {
-                $pointer["\0"] = new Endpoint('/' . join('/', $segments));
-            }
-
-            foreach (explode('|', $methods) as $method) {
-                $pointer["\0"] = $pointer["\0"]->withRoute($method, $route, $vars);
-            }
-        }
-
-        return $structure;
-    }
-
-    /**
-     * Split path into segments and extract variables.
-     *
-     * @param string $path
-     * @return array[]
-     */
-    protected function splitPath(string $path): array
-    {
-        if ($path === '/') {
-            return [[], []];
-        }
-
-        $segments = explode('/', substr($path, 1));
-        $vars = [];
-
-        foreach ($segments as $index => &$segment) {
-            $match = Regex::match('/^(?|:(?P<var>\w+)|\{(?P<var>\w+)\})$/', $segment);
-
-            if ($match->hasMatch()) {
-                $vars[$match->namedGroup('var')] = $index;
-                $segment = '*';
-            }
-        }
-
-        return [$segments, $vars];
     }
 }
