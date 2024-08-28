@@ -195,7 +195,7 @@ CODE;
             );
         } catch (ReflectionException $exception) {
             $key = preg_replace('/{.*?}/', '*', $key);
-            throw new InvalidRouteException("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
+            throw new InvalidRouteException("Invalid route for '$key'. " . $exception->getMessage(), 0, $exception);
         }
 
         return "return $invocation;";

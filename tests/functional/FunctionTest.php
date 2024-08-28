@@ -8,16 +8,13 @@ use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\Invoker;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-/**
- * @coversNothing
- */
+#[CoversNothing]
 class FunctionTest extends TestCase
 {
-    /**
-     * @var vfsStreamDirectory
-     */
-    protected static $root;
+    protected static ?vfsStreamDirectory $root;
 
     public static function setUpBeforeClass(): void
     {
@@ -46,9 +43,7 @@ class FunctionTest extends TestCase
         self::$root = null;
     }
 
-    /**
-     * @dataProvider provider
-     */
+    #[DataProvider('provider')]
     public function test(string $method, string $path, $expected)
     {
         $fn = \Closure::fromCallable(__NAMESPACE__ . '\\route');

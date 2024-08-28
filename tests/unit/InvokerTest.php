@@ -7,8 +7,11 @@ namespace Jasny\SwitchRoute\Tests;
 use BadMethodCallException;
 use Jasny\ReflectionFactory\ReflectionFactory;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\PHPUnit\CallbackMockTrait;
+use Jasny\SwitchRoute\Tests\Utils\CallbackMockTrait;
+use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use LogicException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -18,9 +21,7 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionType;
 
-/**
- * @covers \Jasny\SwitchRoute\Invoker
- */
+#[CoversClass(Invoker::class)]
 class InvokerTest extends TestCase
 {
     use CallbackMockTrait;
@@ -48,7 +49,7 @@ class InvokerTest extends TestCase
     }
 
 
-    public function invokableProvider()
+    public static function invokableProvider()
     {
         return [
             "FooController::toDoAction" => [
@@ -72,9 +73,7 @@ class InvokerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invokableProvider
-     */
+    #[DataProvider('invokableProvider')]
     public function testGenerate($controller, $action, $invokable, $expected)
     {
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
@@ -86,9 +85,7 @@ class InvokerTest extends TestCase
         $this->assertEquals(sprintf($expected, ''), $code);
     }
 
-    /**
-     * @dataProvider invokableProvider
-     */
+    #[DataProvider('invokableProvider')]
     public function testGenerateWithoutNullKeys($controller, $action, $invokable, $expected)
     {
         $reflectionFactory = $this->createReflectionFactoryMock($invokable, false, []);
@@ -100,9 +97,7 @@ class InvokerTest extends TestCase
         $this->assertEquals(sprintf($expected, ''), $code);
     }
 
-    /**
-     * @dataProvider invokableProvider
-     */
+    #[DataProvider('invokableProvider')]
     public function testGenerateWithArguments($controller, $action, $invokable, $expected)
     {
         $expectedCode = sprintf($expected, "\$var['id'] ?? NULL, \$var['some'] ?? NULL, \$var['good'] ?? 'ok'");
@@ -127,7 +122,7 @@ class InvokerTest extends TestCase
 
         $genArg = $this->createCallbackMock($this->exactly(3), function (InvocationMocker $invoke) {
             $invoke
-                ->withConsecutive(['id', null, null], ['some', null, null], ['good', 'string', 'ok'])
+                ->with(...Consecutive::create(['id', null, null], ['some', null, null], ['good', 'string', 'ok']))
                 ->willReturnOnConsecutiveCalls("\$var['id'] ?? NULL", "\$var['some'] ?? NULL", "\$var['good'] ?? 'ok'");
         });
 
@@ -152,9 +147,7 @@ class InvokerTest extends TestCase
         $this->assertEquals("\FooController::barAction(\$var['id'] ?? NULL)", $code);
     }
 
-    /**
-     * @dataProvider invokableProvider
-     */
+    #[DataProvider('invokableProvider')]
     public function testGenerateWithNamespace($controller, $action, $invokable, $expected)
     {
         $invokable[0] = 'App\\Generated\\' . $invokable[0];
@@ -218,7 +211,7 @@ class InvokerTest extends TestCase
         $this->assertEquals("(new \\App\\Foo)->toDo(\$var['id'] ?? NULL)", $code);
     }
 
-    public function invalidInvokerProvider()
+    public static function invalidInvokerProvider()
     {
         $closure = function () {
         };
@@ -234,9 +227,7 @@ class InvokerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidInvokerProvider
-     */
+    #[DataProvider('invalidInvokerProvider')]
     public function testGenerateWithInvalidInvoker($invoker, $type)
     {
         $this->expectException(LogicException::class);
@@ -289,9 +280,7 @@ CODE;
         $this->assertEquals($expected, $invoker->generateDefault());
     }
 
-    /**
-     * @dataProvider invokableProvider
-     */
+    #[DataProvider('invokableProvider')]
     public function testCreateInvokable($controller, $action, $expected)
     {
         $invokable = Invoker::createInvokable($controller, $action);

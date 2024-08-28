@@ -50,7 +50,7 @@ class ExtendTest extends TestCase
         $this->assertFalse($scriptExists);
 
         /** tryFs */
-        $tryFsResult = $extendedGenerator->callTryFs('disk_free_space', '.');
+        $tryFsResult = $extendedGenerator->callTryFs(fn () => disk_free_space('.'));
         $this->assertIsFloat($tryFsResult);
     }
 
@@ -261,9 +261,9 @@ class ExtendTest extends TestCase
                 return $this->scriptExists($file);
             }
 
-            public function callTryFs(callable $fn, ...$args)
+            public function callTryFs(callable $fn)
             {
-                return $this->tryFs($fn, ...$args);
+                return $this->tryFs($fn);
             }
         };
     }

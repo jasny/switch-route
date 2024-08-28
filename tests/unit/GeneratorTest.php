@@ -6,16 +6,15 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\InvalidRouteException;
-use Jasny\PHPUnit\CallbackMockTrait;
+use Jasny\SwitchRoute\Tests\Utils\CallbackMockTrait;
 use LogicException;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-/**
- * @covers \Jasny\SwitchRoute\Generator
- */
+#[CoversClass(Generator::class)]
 class GeneratorTest extends TestCase
 {
     use CallbackMockTrait;
@@ -125,7 +124,7 @@ class GeneratorTest extends TestCase
     public function testGenerateCreateDirFailure()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage("mkdir(): Path vfs://tmp/generated exists");
+        $this->expectExceptionMessage("'vfs://tmp/generated' exists and is not a directory");
 
         vfsStream::create([
             'generated' => 'test'

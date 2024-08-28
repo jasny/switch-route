@@ -6,6 +6,8 @@ namespace Jasny\SwitchRoute\Tests;
 
 use Jasny\SwitchRoute\NotFoundException;
 use Jasny\SwitchRoute\NotFoundMiddleware;
+use Jasny\SwitchRoute\Tests\Utils\Consecutive;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -13,9 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * @covers \Jasny\SwitchRoute\NotFoundMiddleware
- */
+#[CoversClass(NotFoundMiddleware::class)]
 class NotFoundMiddlewareTest extends TestCase
 {
     public function testFound()
@@ -80,10 +80,7 @@ class NotFoundMiddlewareTest extends TestCase
         $responseBody = $this->createMock(StreamInterface::class);
         $response = $this->createMock(ResponseInterface::class);
         $response->expects($this->exactly(2))->method('withHeader')
-            ->withConsecutive(
-                ['Content-Type', 'text/plain'],
-                ['Allow', 'GET, POST']
-            )
+            ->with(...Consecutive::create(['Content-Type', 'text/plain'], ['Allow', 'GET, POST']))
             ->willReturnSelf();
         $response->expects($this->once())->method('getBody')->willReturn($responseBody);
         $responseBody->expects($this->once())->method('write')->with('Method Not Allowed');

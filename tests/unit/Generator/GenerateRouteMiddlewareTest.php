@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests\Generator;
 
 use Jasny\SwitchRoute\Endpoint;
+use Jasny\SwitchRoute\Generator\AbstractGenerate;
 use Jasny\SwitchRoute\Generator\GenerateRouteMiddleware;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Jasny\SwitchRoute\Generator\GenerateRouteMiddleware
- * @covers \Jasny\SwitchRoute\Generator\AbstractGenerate
- */
+#[CoversClass(GenerateRouteMiddleware::class)]
+#[CoversClass(AbstractGenerate::class)]
 class GenerateRouteMiddlewareTest extends TestCase
 {
     use RoutesTrait;

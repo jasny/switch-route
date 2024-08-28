@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
-use Exception;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\InvalidRouteException;
 use OutOfBoundsException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Jasny\SwitchRoute\Endpoint
- */
+#[CoversClass(Endpoint::class)]
 class EndpointTest extends TestCase
 {
     public function testGetPath()
@@ -22,7 +21,7 @@ class EndpointTest extends TestCase
         $this->assertEquals('/users/*', $endpoint->getPath());
     }
 
-    public function methodProvider()
+    public static function methodProvider()
     {
         return [
             'upper case' => ['GET', 'POST', 'PATCH'],
@@ -31,9 +30,7 @@ class EndpointTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider('methodProvider')]
     public function testWithRoute($method)
     {
         $endpoint = new Endpoint('/users/*');
@@ -49,9 +46,7 @@ class EndpointTest extends TestCase
         $this->assertEquals([], $endpoint->getRoutes());
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider('methodProvider')]
     public function testWithRouteWithDuplicateMethod($method)
     {
         $this->expectException(InvalidRouteException::class);
@@ -90,9 +85,7 @@ class EndpointTest extends TestCase
         $this->assertEquals($expected, $endpoint->getRoutes());
     }
 
-    /**
-     * @dataProvider methodProvider
-     */
+    #[DataProvider('methodProvider')]
     public function testGetVars($get, $post, $patch)
     {
         $endpoint = (new Endpoint('/users/*/*'))

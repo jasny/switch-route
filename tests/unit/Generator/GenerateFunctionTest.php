@@ -6,17 +6,18 @@ namespace Jasny\SwitchRoute\Tests\Generator;
 
 use Closure;
 use Jasny\SwitchRoute\Endpoint;
+use Jasny\SwitchRoute\Generator\AbstractGenerate;
+use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionException;
 
-/**
- * @covers \Jasny\SwitchRoute\Generator\GenerateFunction
- * @covers \Jasny\SwitchRoute\Generator\AbstractGenerate
- */
+#[CoversClass(GenerateFunction::class)]
+#[CoversClass(AbstractGenerate::class)]
 class GenerateFunctionTest extends TestCase
 {
     use RoutesTrait;
@@ -24,7 +25,6 @@ class GenerateFunctionTest extends TestCase
     protected function getRouteArgs()
     {
         $routes = $this->getRoutes();
-        $notFound = null;
 
         $routeArgs = [];
         $isClosure = $this->isInstanceOf(Closure::class);
@@ -53,7 +53,7 @@ class GenerateFunctionTest extends TestCase
 
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
-            ->withConsecutive(...$routeArgs)
+            ->with(...Consecutive::create(...$routeArgs))
             ->willReturnCallback(function ($route, callable $genArg) {
                 ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
                 $arg = $action !== 'NotFoundAction' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);

@@ -10,15 +10,16 @@ use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
+use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 
-/**
- * @covers \Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware
- * @covers \Jasny\SwitchRoute\Generator\AbstractGenerate
- */
+#[CoversClass(\Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware::class)]
+#[CoversClass(\Jasny\SwitchRoute\Generator\AbstractGenerate::class)]
 class GenerateInvokeMiddlewareTest extends TestCase
 {
     use RoutesTrait;
@@ -41,7 +42,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
         return $routeArgs;
     }
 
-    public function serverRequestProvider()
+    public static function serverRequestProvider()
     {
         return [
             ServerRequestInterface::class => [ServerRequestInterface::class],
@@ -49,9 +50,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider serverRequestProvider
-     */
+    #[DataProvider('serverRequestProvider')]
     public function testGenerate(string $serverRequestClass)
     {
         $routes = $this->getRoutes();
@@ -60,7 +59,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
 
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
-            ->withConsecutive(...$routeArgs)
+            ->with(...Consecutive::create(...$routeArgs))
             ->willReturnCallback(function ($route, callable $genArg) use ($serverRequestClass) {
                 ['controller' => $controller, 'action' => $action] = $route;
                 $request = $genArg('request', $serverRequestClass, null);

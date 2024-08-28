@@ -116,7 +116,7 @@ CODE;
 
             $invocation = $this->invoker->generateInvocation($route, $genArg, $new);
         } catch (ReflectionException $exception) {
-            throw new InvalidRouteException("Invalid route for '$key'. ". $exception->getMessage(), 0, $exception);
+            throw new InvalidRouteException("Invalid route for '$key'. " . $exception->getMessage(), 0, $exception);
         }
 
         return "return $invocation;";

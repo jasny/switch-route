@@ -11,45 +11,24 @@ use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Factory\Psr17Factory as HttpFactory;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Relay\Relay;
 
-/**
- * @coversNothing
- */
+#[CoversNothing]
 class MiddlewareTest extends TestCase
 {
-    /**
-     * @var vfsStreamDirectory
-     */
-    protected static $root;
+    protected static ?vfsStreamDirectory $root;
 
-    /**
-     * @var string
-     */
-    protected static $namespace;
+    protected static string $namespace;
+    protected static string $file;
 
-    /**
-     * @var string
-     */
-    protected static $file;
-
-    /**
-     * @var MiddlewareInterface
-     */
-    protected $routeMiddleware;
-
-    /**
-     * @var NotFoundMiddleware
-     */
-    protected $notFoundMiddleware;
-
-    /**
-     * @var MiddlewareInterface
-     */
-    protected $invokeMiddleware;
+    protected MiddlewareInterface $routeMiddleware;
+    protected NotFoundMiddleware $notFoundMiddleware;
+    protected MiddlewareInterface $invokeMiddleware;
 
 
     public static function setUpBeforeClass(): void
@@ -114,9 +93,7 @@ class MiddlewareTest extends TestCase
         $this->invokeMiddleware = new $invokeMiddlewareClass($instantiate);
     }
 
-    /**
-     * @dataProvider provider
-     */
+    #[DataProvider('provider')]
     public function test(string $method, string $path, $expected, $expectedStatus = 200)
     {
         $relay = new Relay([$this->routeMiddleware, $this->notFoundMiddleware, $this->invokeMiddleware]);

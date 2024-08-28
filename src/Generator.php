@@ -53,31 +53,38 @@ class Generator
             throw new \LogicException("Expected code as string, got " . gettype($code));
         }
 
-        if (!is_dir(dirname($file))) {
-            $this->tryFs('mkdir', dirname($file), self::DIR_MODE, true);
+        $dir = dirname($file);
+
+        if (!file_exists($dir)) {
+            $this->tryFs(fn () => mkdir($dir, self::DIR_MODE, true));
+        } elseif (!is_dir($dir)) {
+            throw new \RuntimeException("'$dir' exists and is not a directory");
         }
 
-        $this->tryFs('file_put_contents', $file, $code);
+        $this->tryFs(fn () => file_put_contents($file, $code));
     }
 
     /**
      * Try a file system function and throw a \RuntimeException on failure.
      *
      * @param callable $fn
-     * @param mixed    ...$args
      * @return mixed
      */
-    protected function tryFs(callable $fn, ...$args)
+    protected function tryFs(callable $fn)
     {
         $level = error_reporting();
-        error_reporting($level ^ (E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE));
+        error_reporting($level ^ ~(E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE));
 
         error_clear_last();
 
+        $ret = null;
+
         try {
-            $ret = $fn(...$args);
+            $ret = $fn();
         } finally {
-            error_reporting($level);
+            if ($ret !== false) {
+                error_reporting($level);
+            }
         }
 
         if ($ret === false) {
