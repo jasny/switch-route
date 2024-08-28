@@ -38,7 +38,7 @@ Installation
 
     composer require jasny/switch-route
 
-Requires PHP 7.2+
+Requires PHP 8.2+
 
 Usage
 ---
@@ -202,8 +202,18 @@ $request = new ServerRequest($_SERVER, $_COOKIE, $_QUERY, $_POST, $_FILES);
 $response = $relay->handle($request);
 ```
 
-_You typically want to use a DI (dependency injection) container, optionally with autowiring, to create a controller
-rather than doing a simple `new`._
+#### Dependency injection
+
+You typically want to use a DI (dependency injection) container, optionally with autowiring, to create a controller
+rather than doing a simple `new`.
+
+```php
+use App\Generated\InvokeMiddleware;
+
+$container = new DI\Container();
+
+$middleware[] = new InvokeMiddleware(fn($controllerClass) => $container->get($controllerClass));
+```
 
 ### Error pages
 
