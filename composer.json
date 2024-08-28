@@ -24,9 +24,8 @@
     },
     "require-dev": {
         "ext-json": "*",
-        "jasny/php-code-quality": "~2.7.0",
-        "jasny/phpunit-extension": "~0.3.2",
-        "phpstan/phpstan": "~0.12.0",
+        "jasny/php-code-quality": "~3.0.0",
+        "phpstan/phpstan": "~1.12.0",
         "phpunit/phpunit": "^9.6",
         "nyholm/psr7": "^1.1",
         "relay/relay": "^2.0"
