@@ -18,7 +18,7 @@
         "php": "^8.1",
         "jasny/reflection-factory": "^1.1.1",
         "psr/http-factory": "^1.0",
-        "psr/http-message": "^1.0",
+        "psr/http-message": "^1.1",
         "psr/http-server-middleware": "^1.0",
         "spatie/regex": "^1.4"
     },
@@ -26,9 +26,9 @@
         "ext-json": "*",
         "mikey179/vfsstream": "^1.6.11",
         "phpstan/phpstan": "~1.12.0",
-        "phpunit/phpunit": "^11.0",
+        "phpunit/phpunit": ">= 10.0, < 12.0",
         "nyholm/psr7": "^1.1",
-        "relay/relay": "^2.0",
+        "relay/relay": "^2.1",
         "squizlabs/php_codesniffer": "^3.10"
     },
     "suggest": {
