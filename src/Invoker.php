@@ -24,10 +24,7 @@ class Invoker implements InvokerInterface
      */
     protected $createInvokable;
 
-    /**
-     * @var ReflectionFactoryInterface
-     */
-    protected $reflection;
+    protected ReflectionFactoryInterface|ReflectionFactory $reflection;
 
     /**
      * Invoker constructor.
@@ -77,7 +74,7 @@ class Invoker implements InvokerInterface
      * @return string
      */
     protected function generateInvocationMethod(
-        $invokable,
+        array|string $invokable,
         ReflectionMethod $reflection,
         string $new = '(new \\%s)'
     ): string {
@@ -113,10 +110,8 @@ class Invoker implements InvokerInterface
 
     /**
      * Assert that invokable is a function name or array with class and method.
-     *
-     * @param mixed $invokable
      */
-    protected function assertInvokable($invokable): void
+    protected function assertInvokable(mixed $invokable): void
     {
         $valid = is_callable($invokable, true) && (
             (
@@ -147,11 +142,9 @@ class Invoker implements InvokerInterface
     /**
      * Get reflection of invokable.
      *
-     * @param array|string $invokable
-     * @return ReflectionFunction|ReflectionMethod
      * @throws ReflectionException  if function or method doesn't exist
      */
-    protected function getReflection($invokable): ReflectionFunctionAbstract
+    protected function getReflection(array|string $invokable): ReflectionFunction|ReflectionMethod
     {
         if (is_string($invokable) && strpos($invokable, '::') !== false) {
             $invokable = explode('::', $invokable);
@@ -164,8 +157,6 @@ class Invoker implements InvokerInterface
 
     /**
      * Generate standard code for when no route matches.
-     *
-     * @return string
      */
     public function generateDefault(): string
     {
@@ -183,10 +174,6 @@ CODE;
 
     /**
      * Default method to create invokable from controller and action FQCN.
-     *
-     * @param string|null $controller
-     * @param string|null $action
-     * @return array
      */
     final public static function createInvokable(?string $controller, ?string $action): array
     {

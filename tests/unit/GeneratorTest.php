@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
+use Jasny\PHPUnit\CallbackMockTrait;
 use Jasny\SwitchRoute\Generator;
 use Jasny\SwitchRoute\InvalidRouteException;
-use Jasny\SwitchRoute\Tests\Utils\CallbackMockTrait;
 use LogicException;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;

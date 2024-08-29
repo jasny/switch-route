@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests\Generator;
 
 use Closure;
+use Jasny\PHPUnit\ConsecutiveTrait;
 use Jasny\SwitchRoute\Endpoint;
 use Jasny\SwitchRoute\Generator\AbstractGenerate;
-use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use Jasny\SwitchRoute\Generator\GenerateFunction;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
@@ -20,6 +20,7 @@ use ReflectionException;
 #[CoversClass(AbstractGenerate::class)]
 class GenerateFunctionTest extends TestCase
 {
+    use ConsecutiveTrait;
     use RoutesTrait;
 
     protected function getRouteArgs()
@@ -53,7 +54,7 @@ class GenerateFunctionTest extends TestCase
 
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
-            ->with(...Consecutive::create(...$routeArgs))
+            ->with(...$this->consecutive(...$routeArgs))
             ->willReturnCallback(function ($route, callable $genArg) {
                 ['controller' => $controller, 'action' => $action] = $route + ['controller' => null, 'action' => null];
                 $arg = $action !== 'NotFoundAction' ? $genArg('id', '', null) : $genArg('allowedMethods', '', []);

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests;
 
 use BadMethodCallException;
+use Jasny\PHPUnit\CallbackMockTrait;
+use Jasny\PHPUnit\ConsecutiveTrait;
 use Jasny\ReflectionFactory\ReflectionFactory;
 use Jasny\SwitchRoute\Invoker;
-use Jasny\SwitchRoute\Tests\Utils\CallbackMockTrait;
-use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,6 +25,7 @@ use ReflectionType;
 class InvokerTest extends TestCase
 {
     use CallbackMockTrait;
+    use ConsecutiveTrait;
 
     /**
      * Create reflection factory that will return a ReflectionMethod.
@@ -34,8 +35,11 @@ class InvokerTest extends TestCase
      * @param ReflectionParameter[] $parameters
      * @return ReflectionFactory&MockObject
      */
-    protected function createReflectionFactoryMock($invokable, $isStatic, $parameters): ReflectionFactory
-    {
+    protected function createReflectionFactoryMock(
+        array $invokable,
+        bool $isStatic,
+        array $parameters,
+    ): ReflectionFactory & MockObject {
         $reflection = $this->createMock(ReflectionMethod::class);
         $reflection->expects($this->any())->method('isStatic')->willReturn($isStatic);
         $reflection->expects($this->any())->method('getParameters')->willReturn($parameters);
@@ -122,7 +126,7 @@ class InvokerTest extends TestCase
 
         $genArg = $this->createCallbackMock($this->exactly(3), function (InvocationMocker $invoke) {
             $invoke
-                ->with(...Consecutive::create(['id', null, null], ['some', null, null], ['good', 'string', 'ok']))
+                ->with(...$this->consecutive(['id', null, null], ['some', null, null], ['good', 'string', 'ok']))
                 ->willReturnOnConsecutiveCalls("\$var['id'] ?? NULL", "\$var['some'] ?? NULL", "\$var['good'] ?? 'ok'");
         });
 

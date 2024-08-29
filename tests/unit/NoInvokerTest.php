@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Jasny\SwitchRoute\Tests;
 
+use Jasny\PHPUnit\CallbackMockTrait;
 use Jasny\SwitchRoute\NoInvoker;
-use Jasny\SwitchRoute\Tests\Utils\CallbackMockTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(NoInvoker::class)] class NoInvokerTest extends TestCase
+#[CoversClass(NoInvoker::class)]
+class NoInvokerTest extends TestCase
 {
     use CallbackMockTrait;
 

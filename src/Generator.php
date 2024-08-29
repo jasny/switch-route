@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute;
 
 use Jasny\SwitchRoute\Generator\GenerateFunction;
+use RuntimeException;
 use Spatie\Regex\Regex;
 
 /**
@@ -23,7 +24,7 @@ class Generator
     /**
      * Generator constructor.
      *
-     * @param callable $generate  Callback to generate code from structure.
+     * @param callable|null $generate  Callback to generate code from structure.
      */
     public function __construct(callable $generate = null)
     {
@@ -37,7 +38,7 @@ class Generator
      * @param string   $file       Filename to store the script.
      * @param callable $getRoutes  Callback to get an array with the routes.
      * @param bool     $overwrite  Overwrite existing file.
-     * @throws \RuntimeException if file could not be created.
+     * @throws RuntimeException if file could not be created.
      */
     public function generate(string $name, string $file, callable $getRoutes, bool $overwrite): void
     {
@@ -58,7 +59,7 @@ class Generator
         if (!file_exists($dir)) {
             $this->tryFs(fn () => mkdir($dir, self::DIR_MODE, true));
         } elseif (!is_dir($dir)) {
-            throw new \RuntimeException("'$dir' exists and is not a directory");
+            throw new RuntimeException("'$dir' exists and is not a directory");
         }
 
         $this->tryFs(fn () => file_put_contents($file, $code));
@@ -66,11 +67,8 @@ class Generator
 
     /**
      * Try a file system function and throw a \RuntimeException on failure.
-     *
-     * @param callable $fn
-     * @return mixed
      */
-    protected function tryFs(callable $fn)
+    protected function tryFs(callable $fn): mixed
     {
         $level = error_reporting();
         error_reporting($level ^ ~(E_WARNING | E_USER_WARNING | E_NOTICE | E_USER_NOTICE));
@@ -88,7 +86,7 @@ class Generator
         }
 
         if ($ret === false) {
-            throw new \RuntimeException(error_get_last()['message'] ?? "Unknown error");
+            throw new RuntimeException(error_get_last()['message'] ?? "Unknown error");
         }
 
         return $ret;
@@ -99,13 +97,9 @@ class Generator
      * Uses `opcache_is_script_cached` to prevent an unnecessary filesystem read.
      *
      * {@internal opcache isn't easily testable and mocking `opcache_is_script_cached` doesn't seem that useful.}}
-     *
-     * @param string $file
-     * @return bool
      */
     protected function scriptExists(string $file): bool
     {
-        /** @noinspection PhpComposerExtensionStubsInspection */
         return (function_exists('opcache_is_script_cached') && opcache_is_script_cached($file))
             || file_exists($file);
     }
@@ -113,8 +107,6 @@ class Generator
     /**
      * Create a structure with a leaf for each endpoint.
      *
-     * @param iterable $routes
-     * @return array
      * @throws InvalidRouteException
      */
     protected function structureEndpoints(iterable $routes): array

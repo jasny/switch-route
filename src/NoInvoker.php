@@ -17,18 +17,16 @@ class NoInvoker implements InvokerInterface
      *
      * @param array    $route
      * @param callable $genArg  Callback to generate code for arguments.
-     * @param string   $new     PHP code to instantiate class.
+     * @param string   $new     Unused
      * @return string
      */
-    public function generateInvocation(array $route, callable $genArg, string $new = '(new %s)'): string
+    public function generateInvocation(array $route, callable $genArg, string $new = ''): string
     {
         return '[200, ' . var_export($route, true) . ', ' . $genArg(null) . ']';
     }
 
     /**
      * Generate standard code for when no route matches.
-     *
-     * @return string
      */
     public function generateDefault(): string
     {

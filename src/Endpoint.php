@@ -12,26 +12,13 @@ use OutOfBoundsException;
  */
 final class Endpoint
 {
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var array[]
-     */
-    protected $routes = [];
-
-    /**
-     * @var array[]
-     */
-    protected $vars = [];
+    protected string $path;
+    protected array $routes = [];
+    protected array $vars = [];
 
 
     /**
      * Endpoint constructor.
-     *
-     * @param string $path
      */
     public function __construct(string $path)
     {
@@ -40,13 +27,8 @@ final class Endpoint
 
     /**
      * Add a route for this endpoint.
-     *
-     * @param string $method
-     * @param mixed  $route
-     * @param array  $vars
-     * @return static
      */
-    public function withRoute(string $method, $route, array $vars): self
+    public function withRoute(string $method, mixed $route, array $vars): self
     {
         $method = strtoupper($method);
 
@@ -63,8 +45,6 @@ final class Endpoint
 
     /**
      * Get the path of this endpoint.
-     *
-     * @return string
      */
     public function getPath(): string
     {
@@ -73,8 +53,6 @@ final class Endpoint
 
     /**
      * Get the allowed methods for this endpoint.
-     *
-     * @return array
      */
     public function getAllowedMethods(): array
     {
@@ -83,8 +61,6 @@ final class Endpoint
 
     /**
      * Get all routes for this endpoint.
-     *
-     * @return array[]
      */
     public function getRoutes(): array
     {
@@ -93,9 +69,6 @@ final class Endpoint
 
     /**
      * Get vars for a route.
-     *
-     * @param string $method
-     * @return array[]
      */
     public function getVars(string $method): array
     {
@@ -111,8 +84,6 @@ final class Endpoint
 
     /**
      * Get unique routes with methods and vars.
-     *
-     * @return \Generator
      */
     public function getUniqueRoutes(): \Generator
     {

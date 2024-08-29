@@ -15,15 +15,10 @@ use ReflectionException;
  */
 class GenerateFunction extends AbstractGenerate
 {
-    /**
-     * @var InvokerInterface
-     */
-    protected $invoker;
+    protected InvokerInterface $invoker;
 
     /**
      * GenerateScript constructor.
-     *
-     * @param InvokerInterface $invoker
      */
     public function __construct(InvokerInterface $invoker = null)
     {
@@ -71,9 +66,6 @@ CODE;
 
     /**
      * Generate code for an endpoint
-     *
-     * @param Endpoint $endpoint
-     * @return string
      */
     protected function generateEndpoint(Endpoint $endpoint): string
     {
@@ -90,11 +82,6 @@ CODE;
     /**
      * Generate routing code for an endpoint.
      *
-     * @param string        $key
-     * @param array         $route
-     * @param array         $vars
-     * @param callable|null $genArg
-     * @return string
      * @throws InvalidRouteException
      */
     protected function generateRoute(string $key, array $route, array $vars, ?callable $genArg = null): string
@@ -125,8 +112,6 @@ CODE;
     /**
      * Generate code for when no route matches.
      *
-     * @param Endpoint|null $endpoint
-     * @return string
      * @throws InvalidRouteException
      */
     protected function generateDefault(?Endpoint $endpoint): string
@@ -144,14 +129,8 @@ CODE;
 
     /**
      * Generate code for argument using path vars.
-     *
-     * @param array       $vars
-     * @param string|null $name
-     * @param string|null $type
-     * @param mixed       $default
-     * @return string
      */
-    protected function genArg(array $vars, ?string $name, ?string $type = null, $default = null): string
+    protected function genArg(array $vars, ?string $name, ?string $type = null, mixed $default = null): string
     {
         if ($name === null) {
             $fnMap = function ($name, $pos) {

@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Jasny\SwitchRoute\Tests\Generator;
 
 use Closure;
+use Jasny\PHPUnit\ConsecutiveTrait;
 use Jasny\SwitchRoute\Endpoint;
+use Jasny\SwitchRoute\Generator\AbstractGenerate;
 use Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware;
 use Jasny\SwitchRoute\InvalidRouteException;
 use Jasny\SwitchRoute\Invoker;
 use Jasny\SwitchRoute\Tests\RoutesTrait;
-use Jasny\SwitchRoute\Tests\Utils\Consecutive;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,10 +19,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
 
-#[CoversClass(\Jasny\SwitchRoute\Generator\GenerateInvokeMiddleware::class)]
-#[CoversClass(\Jasny\SwitchRoute\Generator\AbstractGenerate::class)]
+#[CoversClass(GenerateInvokeMiddleware::class)]
+#[CoversClass(AbstractGenerate::class)]
 class GenerateInvokeMiddlewareTest extends TestCase
 {
+    use ConsecutiveTrait;
     use RoutesTrait;
 
     protected function getRouteArgs()
@@ -59,7 +61,7 @@ class GenerateInvokeMiddlewareTest extends TestCase
 
         $invoker = $this->createMock(Invoker::class);
         $invoker->expects($this->exactly(count($routeArgs)))->method('generateInvocation')
-            ->with(...Consecutive::create(...$routeArgs))
+            ->with(...$this->consecutive(...$routeArgs))
             ->willReturnCallback(function ($route, callable $genArg) use ($serverRequestClass) {
                 ['controller' => $controller, 'action' => $action] = $route;
                 $request = $genArg('request', $serverRequestClass, null);

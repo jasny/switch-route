@@ -15,15 +15,10 @@ use ReflectionException;
  */
 class GenerateInvokeMiddleware extends AbstractGenerate
 {
-    /**
-     * @var InvokerInterface
-     */
-    protected $invoker;
+    protected InvokerInterface $invoker;
 
     /**
      * GenerateScript constructor.
-     *
-     * @param InvokerInterface $invoker
      */
     public function __construct(InvokerInterface $invoker = null)
     {
@@ -101,9 +96,6 @@ CODE;
 
     /**
      * Generate the PHP script with a switch for routing.
-     *
-     * @param array $routes
-     * @return string
      */
     protected function generateSwitchFromRoutes(array $routes): string
     {
@@ -139,9 +131,6 @@ CODE;
 
     /**
      * Group routes by controller name.
-     *
-     * @param array[] $routes
-     * @return array
      */
     protected function groupRoutes(array $routes): array
     {
@@ -172,10 +161,6 @@ CODE;
     /**
      * Generate routing code for an endpoint.
      *
-     * @param string $key
-     * @param array  $route
-     * @param array  $vars
-     * @return string
      * @throws InvalidRouteException
      */
     protected function generateRoute(string $key, array $route, array $vars): string

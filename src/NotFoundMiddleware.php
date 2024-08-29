@@ -15,10 +15,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class NotFoundMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
+    protected ResponseFactoryInterface $responseFactory;
 
     /**
      * Class constructor.
@@ -32,9 +29,6 @@ class NotFoundMiddleware implements MiddlewareInterface
 
     /**
      * The default action for when no route matches.
-     *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
      */
     protected function notFound(ServerRequestInterface $request): ResponseInterface
     {
@@ -56,10 +50,6 @@ class NotFoundMiddleware implements MiddlewareInterface
 
     /**
      * Process an incoming server request.
-     *
-     * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
-     * @return ResponseInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

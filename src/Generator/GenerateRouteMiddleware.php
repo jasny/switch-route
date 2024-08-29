@@ -91,22 +91,18 @@ CODE;
     /**
      * Generate routing code for an endpoint.
      *
-     * @param string $_
-     * @param array  $route
-     * @param array  $vars
-     * @return string
      * @throws InvalidRouteException
      */
-    protected function generateRoute(string $_, array $route, array $vars): string
+    protected function generateRoute(string $key, array $route, array $vars): string
     {
         $code = ['return $request'];
 
-        foreach ($route as $key => $value) {
-            $code[] = "    ->withAttribute('route:" . addslashes($key) . "', " . var_export($value, true) . ")";
+        foreach ($route as $k => $v) {
+            $code[] = "    ->withAttribute('route:" . addslashes($k) . "', " . var_export($v, true) . ")";
         }
 
-        foreach ($vars as $key => $index) {
-            $code[] = "    ->withAttribute('route:{" . addslashes($key) . "}', \$segments[{$index}])";
+        foreach ($vars as $k => $index) {
+            $code[] = "    ->withAttribute('route:{" . addslashes($k) . "}', \$segments[{$index}])";
         }
 
         $code[array_key_last($code)] .= ';';
