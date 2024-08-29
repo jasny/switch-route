@@ -37,7 +37,7 @@ Installation
 
     composer require jasny/switch-route
 
-Requires PHP 8.2+
+Requires PHP 8.1+
 
 Usage
 ---
