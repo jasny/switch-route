@@ -8,7 +8,7 @@ build:
   nodes:
     analysis:
       environment:
-        php: 8.2
+        php: 8.2.23
         postgresql: false
         redis: false
         mongodb: false

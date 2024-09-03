@@ -18,7 +18,7 @@ jobs:
             desc: "Lowest versions"
           - php: 8.1
           - php: 8.2
-            coverage: '--coverage-clover /tmp/clover.xml'
+            coverage: '--coverage-clover ./clover.xml'
           - php: 8.3
     name: PHP ${{ matrix.php }} ${{ matrix.desc }}
 
@@ -46,5 +46,5 @@ jobs:
       uses: sudo-bot/action-scrutinizer@latest
       if: ${{ matrix.coverage }}
       with:
-        cli-args: "--format=php-clover build/logs/clover.xml --revision=${{ github.event.pull_request.head.sha || github.sha }}"
+        cli-args: "--format=php-clover ./clover.xml"
 
